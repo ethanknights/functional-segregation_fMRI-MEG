@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J job1
 #SBATCH -o job1.out
-#SBATCH --mem-per-cpu 2G
+#SBATCH --mem-per-cpu 5G
 #SBATCH --time 108:00:00
 
 /hpc-software/matlab/r2019a/bin/matlab -nodesktop -nosplash \

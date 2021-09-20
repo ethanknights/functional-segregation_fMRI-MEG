@@ -1,4 +1,4 @@
-function saveNSpikes(TF,h2,subDir,bandName)
+function saveNSpikes(TF,h2,subDir,bandName,descript_roiOrder)
 
 [row,col] = find(TF);
 check.nSpikesFilledByFilter.row = row;
@@ -14,6 +14,6 @@ check.nSpikesRemaining.n = length(row);
 
 
 save(fullfile(subDir,...
-    sprintf('check_nSpikes_%s.mat',bandName)),...
+    sprintf('check_nSpikes_%s_roiOrder-%s.mat',bandName,descript_roiOrder)),...
     'check');
 end

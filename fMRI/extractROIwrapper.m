@@ -121,8 +121,7 @@ end
 %% Estimate linear regression between roi pairs: rsfMRI_GLM.m
 parfor s = 1:nSubs
   CCID = CCIDList{s};
-  try
-  doRestGLM(CCID,outDir,RP{s},WMCSF{s}); %calls rsfMRI_GLM() in parallel
+  try doRestGLM(CCID,outDir,RP{s},WMCSF{s}); %calls rsfMRI_GLM() in parallel
   catch
   end
 end
