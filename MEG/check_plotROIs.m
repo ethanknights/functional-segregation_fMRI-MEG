@@ -1,43 +1,73 @@
-%% Plot hilbEnv matrix for subjects in orders of
-%% - network (net1, net2 etc)
-%% ? - L then R ROI, L then R ROI (using pairs of euclidean closest distance)
+%% Plot group average hilbEnv matrix
 %% ==========================================================================
 
 %--- data ---%
 rootDir = pwd;
 load('CCIDList','CCIDList','age');
 nSubs = length(CCIDList);
-descript_roisName = 'Craddock_LindaFC';  % 'Craddock_LindaFC_4D' 'OSL_noOverlap';
+descript_roisName = 'craddock';
 list_bandNames = {'delta','theta','alpha','beta','lGamma', ...
   'broadband'};
+descript_roiOrder = 'byNetwork';
 
-switch descript_roisName
-  case 'Craddock_LindaFC'
-    atlasInfo = load('/imaging/camcan/sandbox/ek03/projects/connectivity/ROIs/craddock_fromLinda/atlas-craddock_nROIs-724_res-6mm.mat'); atlasInfo = atlasInfo.t2;
-end
 
-%% - network (net1, net2 etc)
+
+
+%% manual ... wip
 %% ------------------------------
-s = 1;  CCID = CCIDList{s};  subDir = fullfile(rootDir,'data','pp',descript_roisName,['sub-',CCID]);
+close all
 
-for bandN = 1:length(list_bandNames)
-  
-  bandName = list_bandNames{bandN}; fprintf(['%s %s\n'],CCID,bandName);
-  
-  tmpStruct = load(fullfile(subDir,['hilbertEnvCorr_',bandName,'.mat']));
-  y = tmpStruct.corrMat;
-  
-  y_reorder = [];
-  
-  labels = tmpStruct.roiLabels;
-  order = 1:length(y)
-  [~,newOrder] = sort(atlasInfo.networkIdx); % 1 1 1 ... 2 2 2 ... : 16 16 16
-  newLabels = tmpStruct.roiLabels(newOrder);
-  for i = 1:length(labels)
-    y_reorder(i,:) = y(newOrder(i),:);
-  end
-  labels_corrMat = new_labels; %to save
-  y = y_reorder;
- 
-  
+bandName = list_bandNames{1}; %delta
+bandName = list_bandNames{2}; %theta
+
+
+dirContents = dir(...
+  sprintf('data/pp/craddock/sub-CC*/hilbertEnvCorr_band-%s_roiOrder-byNetwork.mat',bandName)); 
+nSubs = length(dirContents);
+
+for s = 1:nSubs
+  load(fullfile(dirContents(s).folder,dirContents(s).name))
+  corrM(:,:,s) = corrMat;
 end
+group_corrM = nanmean(corrM,3);
+
+%% plot 
+figure('Position',[10 10 1250 750]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
+%manage labels
+switch descript_roiOrder
+  case 'byNetwork'
+    roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
+    [tmp,idx] = unique(roiLabels);
+    for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
+    yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+    xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+end
+h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0];
+
+title(sprintf('%s Envelope Correlation N=%d roiOrder %s',bandName,nSubs,descript_roiOrder));
+saveas(gcf,...
+  sprintf('groupCorrMat_band-%s_N=%d_roiOrder-%s',bandName,nSubs,descript_roiOrder),...
+  'jpeg');
+fprintf('Saved figure - %s\n',bandName);
+
+%% repeat without noNetworks
+group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
+
+%% plot
+figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
+%manage labels
+switch descript_roiOrder
+  case 'byNetwork'
+    roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
+    [tmp,idx] = unique(roiLabels);
+    for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
+    yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+    xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+end
+h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0];
+
+title(sprintf('%s Envelope Correlation N=%d roiOrder %s',bandName,nSubs,descript_roiOrder));
+saveas(gcf,...
+  sprintf('groupCorrMat_band-%s_N=%d_roiOrder-%s_dropped-noNetworks',bandName,nSubs,descript_roiOrder),...
+  'jpeg');
+fprintf('Saved figure - %s\n',bandName);
