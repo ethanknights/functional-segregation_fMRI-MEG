@@ -1,31 +1,54 @@
 %% Plot group average hilbEnv matrix
 %% ==========================================================================
 
+clear
 %--- data ---%
 rootDir = pwd;
 load('CCIDList','CCIDList','age');
 nSubs = length(CCIDList);
-descript_roisName = 'craddock';
 list_bandNames = {'delta','theta','alpha','beta','lGamma', ...
   'broadband'};
-descript_roiOrder = 'byNetwork';
+
+descript_roisName = 'craddock'; %craddock, Gracious?, OSL_noOverlap
+descript_roiOrder = 'byNetwork'; %byNetwork,lateralised, originalOrder(OSL only) 
+
+rootOutDir = 'data/group_corrMat'; mkdir(rootOutDir)
+outDir = fullfile(rootOutDir,['ROIs-',descript_roisName]); mkdir(outDir)
+
+%% Get ROI Labels & Reorder (for axis labels only)
+switch descript_roisName
+    
+  case 'craddock'
+    [t] = readtable('ROIs/craddock-ROI-835_resampled-6mm.csv');
+    
+    switch descript_roiOrder
+      case 'byNetwork'
+        load('reorderIdx_atlas-craddock_order-byNetwork_nRois-835.mat','idx')
+      case 'lateralised'
+        %doesnt exist eyt - load('reorderIdx_atlas-craddock_order-lateralised_nRois-835.mat','idx')
+    end
+    t = t(idx,:);      roiLabels = t.networkName; %reorder
+    
+  case 'OSL_noOverlap' %legacy set
+    
+    switch descript_roiOrder
+      case 'originalOrder'
+        [y,roiLabels] = reorderOSLROIs(y);
+    end
+    
+end
+
+
 
 %% manual ...
 %% ------------------------------
-bandName = list_bandNames{1}; %delta
+%bandName = list_bandNames{1}; %delta
 %bandName = list_bandNames{2}; %theta
 
 %% loop
 %% ------------------------------
-for bandName = list_bandNames; bandName = bandName{:};
-  
-  
-  rootOutDir = 'data/group_corrMat'; mkdir(rootOutDir)
-  outDir = fullfile(rootOutDir,['ROIs-',descript_roisName]); mkdir(outDir)
-  
-  
-  close all
-  
+%% store mean of all subjects in corrMat.delta, corrMat.theta etc
+for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
   fileStr = sprintf('data/pp/sub-CC*/ROIs-%s/hilbertEnvCorr_band-%s_roiOrder-%s.mat',...
     descript_roisName,bandName,descript_roiOrder);
@@ -34,12 +57,20 @@ for bandName = list_bandNames; bandName = bandName{:};
   fprintf('%d subs found for query:\n%s\n',nSubs,fileStr)
   
   parfor s = 1:nSubs
-    parLoad(fullfile(dirContents(s).folder,dirContents(s).name));
-    corrM(:,:,s) = corrMat;
+    tmpD = parLoad(fullfile(dirContents(s).folder,dirContents(s).name));
+    corrM(:,:,s) = tmpD.corrMat;
   end
-  group_corrM = nanmean(corrM,3);
   
-  %% plot
+  % save(fullfile(outDir,['corrMat_',bandName,'.mat']),'corrM') %huge file if saving all subjects
+  
+  eval(sprintf('corrMat.%s = nanmean(corrM,3)',bandName)); %mean corrMat
+  
+  
+  %% plot group corrMat
+  %% ======================================================================
+  group_corrM = [];
+  eval(sprintf('group_corrM = corrMat.%s;',bandName));
+  
   figure('Position',[10 10 1250 750]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
   %manage labels
   switch descript_roiOrder
@@ -61,10 +92,10 @@ for bandName = list_bandNames; bandName = bandName{:};
   %% append to allResults.pdf
   % export_fig allResults.pdf -append %so slow
   
-  %% repeat without noNetworks
+  %% repeat  plot without noNetworks
+  %% ======================================================================
   group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
   
-  %% plot
   figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
   %manage labels
   switch descript_roiOrder
@@ -86,6 +117,7 @@ for bandName = list_bandNames; bandName = bandName{:};
   %% append to allResults.pdf
   %export_fig allResults.pdf -append %so slow
   
-  close all
-  
 end
+
+save(fullfile(outDir,'group_corrMat.mat'),'corrMat')
+close all
