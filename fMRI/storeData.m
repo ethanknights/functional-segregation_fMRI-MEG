@@ -36,7 +36,7 @@ writetable(d,fullfile(outDir,'LEQ-N205_withSystemSegregation.csv'));
 d2 = d;
 
 
-plotRegression(d.SystemSegregation_fMRIRest,d.Age,'Segregation','Age',nan,'System Segregation In Chan et al. 2018 N=196')
+plotRegression(d.SystemSegregation_fMRIRest,d.Age,'Segregation','Age','System Segregation In Chan et al. 2018 N=196')
 
 end
 

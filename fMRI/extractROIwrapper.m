@@ -156,6 +156,7 @@ corrM.atlasInfo.atlasName = atlasInfo.atlasName;
 corrM.atlasInfo.networkLabel_num =  atlasInfo.networkLabel_num;
 corrM.atlasInfo.networkLabel_str =  atlasInfo.networkLabel_str;
 corrM.atlasInfo.numVox           = atlasInfo.numVox;
+corrM.atlasInfo.roiOrder         = atlasInfo.roiOrder;
 %remember to drop NaN ROIs
 load(fullfile(outDir,'RoisWhichWereRemovedDuringROIExtract.mat'),'RoisWhichWereRemovedDuringROIExtract');
 corrM.atlasInfo.RoisWhichWereRemovedDuringROIExtract = RoisWhichWereRemovedDuringROIExtract;
@@ -163,18 +164,50 @@ corrM.atlasInfo.networkLabel_num(RoisWhichWereRemovedDuringROIExtract) = [];
 corrM.atlasInfo.networkLabel_str(RoisWhichWereRemovedDuringROIExtract) = [];
 corrM.atlasInfo.numVox(RoisWhichWereRemovedDuringROIExtract)           = [];
 
+
 %% save
 outName = fullfile(outDir,'connectivity-betaMatrix.mat');
 save(outName,'corrM','-v7.3');
 
 %% plots
-figure,imagesc(squeeze(mean(corrM.Bmat,1))); colorbar
-cmdStr = sprintf('export_fig %s',fullfile(outDir,'Bmat.pdf'));
-eval(cmdStr);
+%% ========================================================================
+%% with NoNetworks
+tmpD = mean(corrM.Bmat,3); %could do Zmat too
+tmpD( logical( eye( size(tmpD) ) ) ) = nan; %diagonal
+figure('Position',[0,0,1000,1000]),imagesc(tmpD)
+%axis labels
+t = table(corrM.atlasInfo.networkLabel_str);
+roiLabels = t.Var1;
+roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
+[tmp,idx] = unique(roiLabels);
+for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
+title(sprintf('BMat - Correlation Matrix N=%d roiOrder %s',size(corrM.Bmat,3),corrM.atlasInfo.roiOrder));
+%print
+saveas(gcf,...
+  sprintf('%s/groupCorrMat_BMat_N=%d_roiOrder-%s',outDir,size(corrM.Bmat,3),corrM.atlasInfo.roiOrder),...
+  'jpeg');
 
-figure,imagesc(squeeze(mean(corrM.Zmat,1))); colorbar
-cmdStr = sprintf('export_fig %s',fullfile(outDir,'Zmat.pdf'));
-eval(cmdStr);
+%% dropped NoNetworks
+tmpD = mean(corrM.Bmat(1:723,1:723,:),3); %could do Zmat too
+tmpD( logical( eye( size(tmpD) ) ) ) = nan; %diagonal
+figure('Position',[0,0,1000,1000]),imagesc(tmpD)
+%axis labels
+t = table(corrM.atlasInfo.networkLabel_str);
+roiLabels = t.Var1;
+roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
+[tmp,idx] = unique(roiLabels);
+for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
+title(sprintf('BMat - Correlation Matrix N=%d roiOrder %s',size(corrM.Bmat,3),corrM.atlasInfo.roiOrder));
+%print
+saveas(gcf,...
+  sprintf('%s/groupCorrMat_BMat_N=%d_roiOrder-%s',outDir,size(corrM.Bmat,3),corrM.atlasInfo.roiOrder),...
+  'jpeg');
 
 try; plotRegression(corrM.meanB',d.Age); catch; end %wont work if subs failed!
 

@@ -3,9 +3,12 @@
 %% ROIs assigned to 1 of 16 networks (Geerligs et al. 2015).
 %% Compute SyS for association networks (i.e. > effects Chan et al. 2014).
 %%
-%% Notes:
-%% Version currently using DARTEL normalised images 
+%% Version Notes:
+%% - Using DARTEL normalised images 
 %% (i.e. no wavelet despiked images. Instead spikes identified in GLM)
+%%
+%% - Using craddock ROIs in a 'byNetwork' order
+%% (i.e. the .nii is rewritten in new order. See end of: setupAtlas.m)
 %%
 %% Ethan Knights
 %% ========================================================================
@@ -41,7 +44,7 @@ taskDir = fullfile(outDir,'001_getAtlas',atlasName);
 try
    load(fullfile(taskDir,'atlasInfo.mat'),'atlasInfo')
 catch
-  setupAtlas(taskDir,d,atlasName)
+  setupAtlas(taskDir,atlasName)
   load(fullfile(taskDir,'atlasInfo.mat'),'atlasInfo')
 end
 
@@ -50,10 +53,10 @@ end
 taskDir = fullfile(outDir,'002_getRestingStateFC',atlasName);
 try
   %load(fullfile(rootDir,taskDir,'data',atlasName,'roi_extract-y.mat'),'y') %rois x subjects (261 volumes)
-  load(fullfile(taskDir,'connectivity-betaMatrix.mat'),'corrM') %subjects x roi x roi (already removed NaN ROIs)
+  load(fullfile(taskDir,'connectivity-betaMatrix.mat'),'corrM'); %subjects x roi x roi (already removed NaN ROIs)
 catch
   extractROIwrapper(taskDir,d,atlasInfo)
-  load(fullfile(taskDir,'connectivity-betaMatrix.mat'),'corrM') %subjects x roi x roi (already removed NaN ROIs)
+  load(fullfile(taskDir,'connectivity-betaMatrix.mat'),'corrM'); %subjects x roi x roi (already removed NaN ROIs)
 end
 
 clear atlasInfo   %to avoid confusion with corrM.atlasInfo
@@ -69,21 +72,24 @@ clear atlasInfo   %to avoid confusion with corrM.atlasInfo
 %   run_thisStep(rootDir,d,corrM,y)
 %   cd(rootDir)
 % end
-% 
 %
 
+
 %% 004. Compute system segregation (Chan et al. 2014)
-taskDir = fullfile('004_computeSystemSegregation',atlasName);
-[W,B,S] = computeSystemSegregation(taskDir,corrM);
-
+taskDir = fullfile(outDir,'004_computeSyS',atlasName);
+%[W,B,S] = computeSystemSegregation(taskDir,corrM);
 [W,B,S] = computeSystemSegregation2_associationOnly(taskDir,corrM);
+plot_SyS(taskDir) %% Nicer SyS plot
 
 
-%% 005. Store System Segregation
-DirToWriteTo = 'output_SyS_Linda16_associationOnly';
-mkdir(DirToWriteTo);
-[d,noMRI_d] = storeData(rootDir,DirToWriteTo,S,corrM);
-    
+
 
 return
 
+
+
+
+% %% 005. Store System Segregation for LEQ only...
+% DirToWriteTo = 'output_SyS_Linda16_associationOnly';
+% mkdir(DirToWriteTo);
+% [d,noMRI_d] = storeData(rootDir,DirToWriteTo,S,corrM);

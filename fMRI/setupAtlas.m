@@ -13,7 +13,7 @@
 %data/<atlas>_3D.nii
 %data/<atlas>_4D.nii **Want this 1 for analysis**
 
-function setupAtlas(outDir,d,atlasName)
+function setupAtlas(outDir,atlasName)
 
 mkdir(outDir)
 
@@ -27,11 +27,10 @@ nROISExpected = 840; %(roi '0' not network so not 841)
 V = spm_vol(atlasfN_3D);
 y = spm_read_vols(V);
 u = unique(y);
-l = length(u); %840 ROIs (+ 0 for no network)
 
 %% Create 4D atlas for roiExtract (as needs cellararay of vols with different rois):
 %% 1. write each roi value to a separate binary 3D vol.nii
-for r = 1:length(u) %'0' definitely isnt a network in 841 atlas, i checked
+for r = 1:length(u) %'0' definitely isnt a network in 841 atlas
   
   tmp_fN = sprintf('atlas_roiLabel-%s.nii',num2str(u(r)));
   tmp_V = V;
@@ -102,11 +101,31 @@ for r = 1:length(u)
   tmpN{r} = fullfile(outDir,sprintf('atlas_roiLabel-%s.nii',num2str(u(r))));
 end
 tmpN = cellstr(tmpN');
+
+%% IMPORTANT - Reordering here by network
+uniqueNetworks = ...
+  {'AI';'DAN';'DMN';'FEN';'FPCN';'VAN';'cingulate';'precuneus';'temporal';... %association
+  'basal ganglia';'brainstem';'cerebellum';'thalamus';... %subcortical
+  'auditory';'SMN';'visual';... %sensory
+  'noNetwork'}; %other
+  
+%gather new order
+idx = [];
+for i = 1:length(uniqueNetworks);  currNetStr = uniqueNetworks{i};
+  idx{i} = find(strcmp(currNetStr,netStrs))';
+end
+idx2 = vertcat(idx{:});
+
+%rebuild table
+tmpN = tmpN(idx2,:);
+
+%% now write the new image
 matlabbatch{1}.spm.util.cat.vols = tmpN;
 matlabbatch{1}.spm.util.cat.name = atlasfN_4D;
 matlabbatch{1}.spm.util.cat.dtype = 4;
 matlabbatch{1}.spm.util.cat.RT = NaN;
 spm_jobman('run',matlabbatch);
+
 
 %% remove the single 3D .nii's 
 for r = 1:length(tmpN)
@@ -118,10 +137,11 @@ atlasInfo = [];
 atlasInfo.atlasfN_3D            = atlasfN_3D;
 atlasInfo.atlasfN_4D            = atlasfN_4D;
 % atlasInfo.xyzMNI_coords         = xyz_coords;
-atlasInfo.networkLabel_num      = uu';
-atlasInfo.networkLabel_str      = netStrs';
-atlasInfo.numVox                = ll';
+atlasInfo.networkLabel_num      = uu(idx2)';
+atlasInfo.networkLabel_str      = netStrs(idx2)';
+atlasInfo.numVox                = ll(idx2)';
 atlasInfo.atlasName             = atlasName;
+atlasInfo.roiOrder              = 'byNetwork';
   
 save(fullfile(outDir,'atlasInfo.mat'),'atlasInfo')
 

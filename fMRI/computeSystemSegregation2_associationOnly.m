@@ -48,7 +48,7 @@
 
 function [W,B,S] = computeSystemSegregation2_associationOnly(outDir,corrM)
 
-outDir = fullfile('data',[outDir,'_associationOnly'])
+outDir = [outDir,'_associationOnly'];
 mkdir(outDir)
 
 %% Setup Subjects

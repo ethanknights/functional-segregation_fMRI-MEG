@@ -1,15 +1,9 @@
 %% Plot group average hilbEnv matrix
-%%
-%% Available:
-%% plot_groupCorrMat('craddock','byNetwork')
-%% plot_groupCorrMat('craddock','lateralised')
-%%
-%  Debug:
-%  descript_roisName = 'craddock'; %craddock, Gracious?, OSL_noOverlap
-%  descript_roiOrder = 'byNetwork'; %byNetwork,lateralised, originalOrder(OSL only) 
-%%
 %% ==========================================================================
 function plot_groupCorrMat(descript_roisName,descript_roiOrder)
+
+%descript_roisName = 'craddock'; %craddock, Gracious?, OSL_noOverlap
+%descript_roiOrder = 'byNetwork'; %byNetwork,lateralised, originalOrder(OSL only) 
 
 %--- data ---%
 rootDir = pwd;
@@ -24,26 +18,25 @@ outDir = fullfile(rootOutDir,['ROIs-',descript_roisName]); mkdir(outDir)
 
 %% Get ROI Labels & Reorder (for axis labels only)
 switch descript_roisName
-%--------------------------------------------------------------------------
-  %-------- 
+    
   case 'craddock'
-  %--------
     [t] = readtable('ROIs/craddock-ROI-835_resampled-6mm.csv');
+    
     switch descript_roiOrder
       case 'byNetwork'
         load('reorderIdx_atlas-craddock_order-byNetwork_nRois-835.mat','idx')
       case 'lateralised'
-        load('reorderIdx_atlas-craddock_order-lateralised_nRois-788.mat','idx');
+        %doesnt exist eyt - load('reorderIdx_atlas-craddock_order-lateralised_nRois-835.mat','idx')
     end
     t = t(idx,:);      roiLabels = t.networkName; %reorder
-  %--------  
+    
   case 'OSL_noOverlap' %legacy set
-  %--------  
+    
     switch descript_roiOrder
       case 'originalOrder'
         [y,roiLabels] = reorderOSLROIs(y);
     end
-%--------------------------------------------------------------------------
+    
 end
 
 
@@ -88,9 +81,6 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
       for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
       yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
       xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
-    case 'lateralised'
-      yticks(1:length(roiLabels)); set(gca, 'YTicklabel',roiLabels);
-      xticks(1:length(roiLabels)); set(gca, 'xTicklabel',roiLabels); xtickangle(90);
   end
   h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
   
@@ -103,33 +93,30 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   %% append to allResults.pdf
   % export_fig allResults.pdf -append %so slow
   
-  %% repeat  plot without noNetworks if craddock-byNetwork
+  %% repeat  plot without noNetworks
   %% ======================================================================
-  if strcmp(descript_roisName,'craddock') && strcmp(descript_roisName,'byNetwork')
-    
-    group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
-    
-    figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
-    %manage labels
-    switch descript_roiOrder
-      case 'byNetwork'
-        roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
-        [tmp,idx] = unique(roiLabels);
-        for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
-        yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
-        xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
-    end
-    h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
-    
-    title(sprintf('%s Envelope Correlation N=%d roiOrder %s dropped noNetworks',bandName,nSubs,descript_roiOrder));
-    saveas(gcf,...
-      sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s_dropped-noNetworks',outDir,bandName,nSubs,descript_roiOrder),...
-      'jpeg');
-    fprintf('Saved figure - %s\n',bandName);
-    
-    %% append to allResults.pdf
-    %export_fig allResults.pdf -append %so slow
+  group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
+  
+  figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
+  %manage labels
+  switch descript_roiOrder
+    case 'byNetwork'
+      roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
+      [tmp,idx] = unique(roiLabels);
+      for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
+      yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+      xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
   end
+  h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
+  
+  title(sprintf('%s Envelope Correlation N=%d roiOrder %s dropped noNetworks',bandName,nSubs,descript_roiOrder));
+  saveas(gcf,...
+    sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s_dropped-noNetworks',outDir,bandName,nSubs,descript_roiOrder),...
+    'jpeg');
+  fprintf('Saved figure - %s\n',bandName);
+  
+  %% append to allResults.pdf
+  %export_fig allResults.pdf -append %so slow
   
 end
 
