@@ -17,6 +17,9 @@ function setupAtlas(outDir,atlasName)
 
 mkdir(outDir)
 
+copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/craddock_ROI_841_Linda_FCpaper.nii',outDir)
+copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/bignetworks_gamma26.nii',outDir)
+
 atlasfN_3D = fullfile(outDir,'craddock_ROI_841_Linda_FCpaper.nii');
 atlasfN_4D = fullfile(outDir,'craddock_ROI_841_Linda_FCpaper_4D.nii');
 
@@ -84,10 +87,12 @@ for r = 1:length(u) %'0' definitely isnt a network in 841 atlas, i checked
   %so no logic needed to choose maximal overlap here... 
   %There will be error otherwise:
   %(uu is 840 x 1, but a roi will with >1 unique val will exceed as 840x2or3 etc.)
-  if uu(r)
-    netStrs{r} = network_name{uu(r)};
+  if uu(r) %if overlap network
+    if length(netCodes{r}) / sum(netCodes{r} == uu(r)) * 100 > 50 %and if >50% of voxels in ROI overlap this network
+      netStrs{r} = network_name{uu(r)}; %assign this ROI to that network
+    end
   else
-    netStrs{r} = 'noNetwork';
+    netStrs{r} = 'noNetwork'; %otherwise its noNetwork
   end
   
   %also store how many voxels in roi

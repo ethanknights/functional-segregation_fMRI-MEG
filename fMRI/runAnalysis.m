@@ -79,7 +79,7 @@ clear atlasInfo   %to avoid confusion with corrM.atlasInfo
 taskDir = fullfile(outDir,'004_computeSyS',atlasName);
 %[W,B,S] = computeSystemSegregation(taskDir,corrM);
 [W,B,S] = computeSystemSegregation2_associationOnly(taskDir,corrM);
-plot_SyS(taskDir) %% Nicer SyS plot
+%% Nicer SyS plot in R/plot_sys.R
 
 
 
