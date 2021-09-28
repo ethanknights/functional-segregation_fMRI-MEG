@@ -17,8 +17,8 @@ function setupAtlas(outDir,atlasName)
 
 mkdir(outDir)
 
-copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/craddock_ROI_841_Linda_FCpaper.nii',outDir)
-copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/bignetworks_gamma26.nii',outDir)
+copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/craddock_ROI_841_Linda_FCpaper.nii',outDir);
+copyfile('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/ROIs/bignetworks_gamma26.nii',outDir);
 
 atlasfN_3D = fullfile(outDir,'craddock_ROI_841_Linda_FCpaper.nii');
 atlasfN_4D = fullfile(outDir,'craddock_ROI_841_Linda_FCpaper_4D.nii');
