@@ -80,27 +80,9 @@ end
 %% print number of ROis per network left
 u = unique(corrM.atlasInfo.networkLabel_num);
 for uu= 1:length(u)
-  
   corrM.atlasInfo.nRoisPerNetwork(uu) = sum(corrM.atlasInfo.networkLabel_num == u(uu));
-  
   fprintf('nROis for Network: %s %s\n',corrM.atlasInfo.networkLabel_str{uu},num2str(corrM.atlasInfo.nRoisPerNetwork(uu)));
 end
-% FPCN 65
-% auditory 49
-% FPCN 80
-% visual 70
-% SMN 68
-% brainstem 36
-% SMN 81
-% brainstem 33
-% VAN 24
-% AI 21
-% visual 23
-% auditory 52
-% FEN 26
-% DAN 11
-% visual 20
-% cingulate 39
 
 
 %% quick plot Group Mean connectivity
