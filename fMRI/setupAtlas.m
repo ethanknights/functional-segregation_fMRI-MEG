@@ -150,4 +150,12 @@ atlasInfo.roiOrder              = 'byNetwork';
   
 save(fullfile(outDir,'atlasInfo.mat'),'atlasInfo')
 
+%% write a 'network' image to visualise
+cd('data/001_getAtlas/craddock')
+addpath('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI')
+spm_convertAtlas_4Dto3D('craddock_ROI_841_Linda_FCpaper_4D.nii',atlasInfo.networkLabel_num)
+delete('craddock_ROI_841_Linda_FCpaper_4D_00*.nii')
+movefile('new_craddock_ROI_841_Linda_FCpaper_4D.nii','visualise-craddock_ROI_841_Linda_FCPaper_dim-3D.nii')
+rmpath('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI')
+
 end
