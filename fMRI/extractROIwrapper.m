@@ -183,7 +183,7 @@ roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
 for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
-h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
+h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot); colorbar
 title(sprintf('BMat - Correlation Matrix N=%d roiOrder %s',size(corrM.Bmat,3),corrM.atlasInfo.roiOrder));
 %print
 saveas(gcf,...
