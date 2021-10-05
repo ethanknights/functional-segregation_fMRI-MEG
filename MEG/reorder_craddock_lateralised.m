@@ -3,10 +3,19 @@ function [y,roiLabels,t] = reorder_craddock_lateralised(orig_y,orig_t)
 %% Provide original data & table incl. 2 headers: networkName, networkIdx
 %% output is the new y data, new labels and a new table (that holds all info)
 %%
-%% Lateralised version: Each ROI next to its closest ROI 
-%% in terms of xyz in opposite hemisphere (so L,R,L,R).
-%% Since odd nROIs, last ROI is just on its own.
+%% Lateralised version: Each ROI is paired with its closest ROI in terms of 
+%% xyz in opposite hemisphere (So first pass does [L(a),R(a),L(b),R(b)]
+%%
+%% Next put them in a mirrored grid (using even/odd) for order:
+%% [ L(a),L(b),L(c) ... L(z), R(a),R(b),R(c) ]
+%%
+%% This is far from perfect, but there is no perfect solution -
+%% Some ROIs will be left out! As wont exactly match between left and right
+%% particularly because ROIs with x=0 are assigned as left (only solution!)
+%% And pairs would change if original order was shuffled (because each ROI 
+%% is removed once found its pair)
 %% ========================================================================
+
 clear
 
 load('tmp.mat') %just example orig_y,orig_tfor convenience
@@ -41,10 +50,11 @@ for roiN = 1:p.n_parcels
 end
 %imagesc(roiDiff)
 
+%% First pass: make a grid of L(a),R(a), L(b), R(b)
 %% for each ROI go through and find the smallest distance in opposite hemi
-idx_leftHemisphere = logical(roiCentres(:,1) > 0); %some are 0, just treat as right...
+idx_leftHemisphere = logical(roiCentres(:,1) < 0); %some are 0, just treat as right...
 
-newOrder = []; minVal = [];
+newOrder = []; minVal = []; x = [];
 for roiN = 1:p.n_parcels - 1 %minus 1 as odd nROIs. Last is noNetwork anyway
   
   tmpD = roiDiff(:,roiN); %tmpD = distances for this ROI
@@ -69,6 +79,13 @@ for roiN = 1:p.n_parcels - 1 %minus 1 as odd nROIs. Last is noNetwork anyway
     [minVal(end+1),newOrder(end+1)] = min(tmpD); %append its closest distance pair
     roiDiff(:,newOrder(end)) = nan; %remove this ROI, so cant be reused (vert)
     roiDiff(newOrder(end),:) = nan; %remove this ROI, so cant be reused (horz)
+    
+    if ~idx_leftHemisphere(roiN) %if not LH 1st, swap pair (so always L,R)
+      tmpL = newOrder(end);
+      tmpR = newOrder(end-1);
+      newOrder(end-1:end) = [tmpL,tmpR];
+    end
+      
   else
     %Roi already used
     roiDiff(:,roiN) = nan; %remove this ROI, so cant be reused (vert)
@@ -93,18 +110,19 @@ t.roicentres_x = roiCentres(idx2,1);
 t.roicentres_y = roiCentres(idx2,2);
 t.roicentres_z = roiCentres(idx2,3);
 
-% for roiN = 1:height(t)
-%       t.roiEuclidDiDist_diffFromPairedROI(roiN,roiN_2) = sqrt(...
-%       ( (1) - roiB(1) )^2 + ...
-%       ( roiA(2) - roiB(2) )^2 + ...
-%       ( roiA(3) - roiB(3) )^2 ...
-%       );
-% end
+%% store this idx (as need both idx's later if only have raw table!)
+idx_a_ROIPairs = idx2;
 
+%% Second Pass - reorder so [ L(a),L(b) ... L(z), R(a),R(b) ... R(z) ]
+%% use odd/even
+e=1:height(t);
+e(mod(e,2)~=0)=[];
+o = e-1;
+idx_b_LR = [o,e]';%examine: oe = [o;e]';
 
-% %% for convenience, key stuff
-% y = orig_y(idx2,:);
-% roiLabels = t.networkName;
-% 
-% %% save (so dont need ot rerun function...)
-idx = idx2; save('reorderIdx_atlas-craddock_order-lateralised_nRois-788.mat','idx') 
+%% check (apply second idx)
+check = t(idx_b_LR,:);
+
+%% save (so dont need to rerun function...)
+save('reorderIdx_atlas-craddock_order-lateralised_nRois-782.mat',...
+  'idx_a_ROIPairs','idx_b_LR')

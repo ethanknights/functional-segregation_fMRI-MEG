@@ -9,4 +9,4 @@
 
 /hpc-software/matlab/r2019a/bin/matlab -nodesktop -nosplash \
 cd /imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/MEG \
--r preproc_beamform_ROI
+-r runAnalysis
