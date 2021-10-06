@@ -59,7 +59,7 @@ nSubs = length(CCIDList);
 I = LoadSubIDs;
 for s = 1:nSubs
   idx = contain(CCIDList{s},I.SubCCIDc);
-  age(s) = I.Age(s);
+  age(s) = I.Age(idx);
 end
 age = age';
 
@@ -162,64 +162,6 @@ toWrite = table(CCIDList,S',age);
 toWrite.Properties.VariableNames = {'CCID','SyS','Age'};
 writetable(toWrite,fullfile(outDir,'SySTable.csv'))
 
-% %% ZMAT VERSION
-% figure,imagesc(squeeze(mean(corrM.Zmat,1)))
-% %% calculate system segregation
-% for s = 1:length(CCIDList)
-%   
-%   %Get main data (i.e. subs connectivity matrix & roi labels)
-%   M = squeeze(corrM.Zmat(s,:,:));
-%   Ci = corrM.atlasInfo.networkLabel_num;
-%   
-%   nCi = unique(Ci);
-%   
-%   Wv = [];
-%   Bv = [];
-%   
-%   for i = 1:length(nCi) % loop through communities
-%     Wi = Ci == nCi(i); % find index for this system (i.e. within  communitiy)
-%     Bi = Ci ~= nCi(i); % find index for diff system (i.e. between communitiy)
-%     
-%     Wv_temp = M(Wi,Wi); % extract this system
-%     Bv_temp = M(Wi,Bi); % extract diff system
-%     
-%     Wv = [Wv, Wv_temp(logical(triu(ones(sum(Wi)),1)))'];
-%     Bv = [Bv, Bv_temp(:)'];
-%   end
-%   
-%   W(s) = mean(Wv); % mean this system
-%   B(s) = mean(Bv); % mean diff system
-%   d.S(s) = (W(s)-B(s))/W(s); % system segregation
-%   
-% end
-% plotRegression(d.S,d.Age)
-% title('System segregation - rest FC'); 
-% xlabel('age'); ylabel('mean within - between system')
-% 
-% plotRegression(B',d.Age)
-% title('Between System mean - rest FC');
-% xlabel('age'); ylabel('mean between system')
-% 
-% % plotRegression(W',d.Age)
-% % title('Within System mean - rest FC');
-% % xlabel('age'); ylabel('mean within system')
-% 
-% % cmdStr = sprintf('export_fig %s',fullfile(outDir,'tmp.pdf'))
-% % eval(cmdStr)
-
-
-
-
-
-%% Save
-
-% outName = fullfile(outDir,'data.mat');
-% save(outName,'d');
-
-
-
-
-
-
+%% check = readtable(fullfile(outDir,'SySTable.csv'))
 
 end
