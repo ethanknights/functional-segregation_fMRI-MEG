@@ -1,13 +1,8 @@
-%% Plot group average hilbEnv matrix
+%% Plot group average hilbEnv matrix (VERSION : NaN THe LEFT and RIGHT 
+%% subgrids for lateralised)
 %%
 %% Available:
-%% plot_groupCorrMat('craddock','byNetwork')
 %% plot_groupCorrMat('craddock','lateralised')
-%%
-%  Debug:
-%  descript_roisName = 'craddock'; %craddock, Gracious?, OSL_noOverlap
-%  descript_roiOrder = 'byNetwork'; %byNetwork,lateralised, originalOrder(OSL only) 
-%%
 %% ==========================================================================
 function plot_groupCorrMat(descript_roisName,descript_roiOrder)
 
@@ -52,6 +47,7 @@ end
 
 
 
+
 %% manual ...
 %% ------------------------------
 %bandName = list_bandNames{1}; %delta
@@ -78,11 +74,14 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   eval(sprintf('corrMat.%s = nanmean(corrM,3)',bandName)); %mean corrMat
   
   
-  %% plot group corrMat
+  %% plot group corrMat - WITH NaNs
   %% ======================================================================
   group_corrM = [];
   eval(sprintf('group_corrM = corrMat.%s;',bandName));
   
+  group_corrM(1:391,1:391) = nan; %left
+  group_corrM(392:end,392:end) = nan;
+
   figure('Position',[10 10 1250 750]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
   %manage labels
   switch descript_roiOrder
@@ -100,42 +99,12 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
   title(sprintf('%s Envelope Correlation N=%d roiOrder %s',bandName,nSubs,descript_roiOrder));
   saveas(gcf,...
-    sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s',outDir,bandName,nSubs,descript_roiOrder),...
+    sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s_VersionNaN',outDir,bandName,nSubs,descript_roiOrder),...
     'jpeg');
   fprintf('Saved figure - %s\n',bandName);
   
-  %% append to allResults.pdf
-  % export_fig allResults.pdf -append %slow
-  
-  %% repeat  plot without noNetworks if craddock-byNetwork
-  %% ======================================================================
-  if strcmp(descript_roisName,'craddock') && strcmp(descript_roiOrder,'byNetwork')
-    
-    group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
-    
-    figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
-    %manage labels
-    switch descript_roiOrder
-      case 'byNetwork'
-        roiLabels2 = cell(1, height(t)); roiLabels2(:) = {''};
-        [tmp,idx] = unique(roiLabels);
-        for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end
-        yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
-        xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
-    end
-    h = gca; h.XAxis.TickLength = [0 0]; h.YAxis.TickLength = [0 0]; colormap(hot);
-    
-    title(sprintf('%s Envelope Correlation N=%d roiOrder %s dropped noNetworks',bandName,nSubs,descript_roiOrder));
-    saveas(gcf,...
-      sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s_dropped-noNetworks',outDir,bandName,nSubs,descript_roiOrder),...
-      'jpeg');
-    fprintf('Saved figure - %s\n',bandName);
-    
-    %% append to allResults.pdf
-    %export_fig allResults.pdf -append %slow
-  end
   
 end
 
-save(fullfile(outDir,sprintf('group_corrMat_roiOrder-%s.mat',descript_roiOrder)),'corrMat','CCIDList','age')
+save(fullfile(outDir,sprintf('group_corrMat_Order-%s_VersionNaN.mat',descript_roiOrder)),'corrMat')
 close all
