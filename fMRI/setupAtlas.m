@@ -157,5 +157,6 @@ spm_convertAtlas_4Dto3D('craddock_ROI_841_Linda_FCpaper_4D.nii',atlasInfo.networ
 delete('craddock_ROI_841_Linda_FCpaper_4D_00*.nii')
 movefile('new_craddock_ROI_841_Linda_FCpaper_4D.nii','visualise-craddock_ROI_841_Linda_FCPaper_dim-3D.nii')
 rmpath('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI')
+cd('../../../')
 
 end
