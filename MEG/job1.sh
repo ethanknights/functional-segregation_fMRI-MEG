@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J job1_noOthog
+#SBATCH -J job1
 #SBATCH -o job1.out
 #SBATCH --mem-per-cpu 12G
 #SBATCH --time 108:00:00
