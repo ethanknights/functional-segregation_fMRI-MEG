@@ -7,7 +7,7 @@ mkdir(outDir)
 
 %% Setup Subjects
 CCIDList = d.CCID;
-nSubs = length(CCIDList);
+nSubs = 1%length(CCIDList);
 
 %% Setup structure 'S' for roiExtract.m
 S = [];
@@ -27,20 +27,21 @@ S.ROIfiles = cellstr(spm_select('ExtFPList',roiDir,[fN,ext]));
 %   end
 % end
 
-S.Datafiles = {};
-RP = {};
-WMCSF = {};
-for s = 1:nSubs
+Datafiles = cell(nSubs,1);
+RP = cell(nSubs,6);
+WMCSF = cell(nSubs,2);
+G = cell(nSubs,1);
+parfor s = 1:nSubs
   CCID = CCIDList{s};
   fprintf('Listing files %s\n',CCID);
   
   %% get datafiles
   [source_subDir,~,~] = fileparts(d.fN_fMRI_Rest{s});
-  S.Datafiles{s} = spm_select('ExtFPList',source_subDir,'^swauf.*\.nii$'); %no wds version
+  Datafiles{s} = spm_select('ExtFPList',source_subDir,'^swauf.*\.nii$'); %no wds version
   %S.Datafiles{s} = spm_select('ExtFPList',source_subDir,'\w+_wds.nii'); %waveletdespike version
   
   %% get global signal from all brain voxels (nuisance variable)
-  tmpY = spm_read_vols(spm_vol(S.Datafiles{s}));
+  tmpY = spm_read_vols(spm_vol(Datafiles{s}));
   tmpY_mask = spm_read_vols(spm_vol(...
     'rmask_ICV.nii')); %from reslice_SPMmask.m %size(tmpY); size(tmpY_mask)
   for v = 1:size(tmpY,4);  tmpYv = tmpY(:,:,:,v);
@@ -56,6 +57,7 @@ for s = 1:nSubs
   tmp = load(d.fN_fMRI_Rest_compSignal{s}); %GM WM CSF
   WMCSF{s} = tmp.compTC(:,2:3);
 end
+S.Datafiles = Datafiles;
 
 %% Extract Timeseries per Sub / ROI with roiExtract.m
 % roiExtract_outName = fullfile(outDir,'roi_extract-y.mat');

@@ -53,7 +53,6 @@ end
 %% 002. Extract ROI Data & run GLM
 taskDir = fullfile(outDir,'002_getRestingStateFC',atlasName);
 try
-  %load(fullfile(rootDir,taskDir,'data',atlasName,'roi_extract-y.mat'),'y') %rois x subjects (261 volumes)
   load(fullfile(taskDir,'connectivity-betaMatrix.mat'),'corrM'); %subjects x roi x roi (already removed NaN ROIs)
 catch
   extractROIwrapper(taskDir,d,atlasInfo)
