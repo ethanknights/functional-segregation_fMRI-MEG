@@ -7,7 +7,7 @@ mkdir(outDir)
 
 %% Setup Subjects
 CCIDList = d.CCID;
-nSubs = 1%length(CCIDList);
+nSubs = length(CCIDList); %1
 
 %% Setup structure 'S' for roiExtract.m
 S = [];
