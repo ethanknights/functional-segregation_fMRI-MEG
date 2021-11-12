@@ -37,6 +37,8 @@ S.Y = [y.svd]; %   figure,plot(S.Y(:,:))
 S.M = RP;
 S.C = [WMCSF,G];
 
+S.pflag = 1; %partial correlation
+%S.pflag = 0; %no partial correlation
 
 %[Zmat, Bmat, pZmat, pBmat, aY, X0r] = rsfMRI_GLM(S);
 [Zmat, Bmat, pZmat, pBmat, aY, X0r] = rsfMRI_GLM_p36(S); %additional covariates: derivates of GS, WM, CSF 
