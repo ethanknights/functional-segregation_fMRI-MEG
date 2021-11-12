@@ -9,7 +9,7 @@
 %  descript_roiOrder = 'byNetwork'; %byNetwork,lateralised, originalOrder(OSL only) 
 %%
 %% ==========================================================================
-function plot_groupCorrMat(descript_roisName,descript_roiOrder)
+function plot_groupCorrMat(descript_roisName,descript_roiOrder,doOrthog)
 
 %--- data ---%
 rootDir = pwd;
@@ -23,13 +23,28 @@ rootOutDir = 'data/group_corrMat'; mkdir(rootOutDir)
 outDir = fullfile(rootOutDir,['ROIs-',descript_roisName]); mkdir(outDir)
 
 %% Get ROI Labels & Reorder (for axis labels only)
+% =========================================================================
 switch descript_roisName
-%--------------------------------------------------------------------------
-  %-------- 
-  case 'craddock'
-  %--------
-    [t] = readtable('ROIs/craddock-ROI-835_resampled-6mm.csv');
+% =========================================================================
+
+  %========
+  case 'Schaefer_100parcels_7networks'
+  %========
+    [t] = readtable('ROIs/Schaefer/Schaefer2018_100Parcels_7Networks_order_FSLMNI152_2mm_labels.txt');
+    %--------
     switch descript_roiOrder
+    %--------
+      case 'dropSchaefer'
+        reorder_dropSchaefer
+    end
+
+  %======== 
+  case 'craddock'
+  %========
+    [t] = readtable('ROIs/craddock-ROI-835_resampled-6mm.csv');
+    %--------
+    switch descript_roiOrder
+    %--------
       case 'byNetwork'
         load('reorderIdx_atlas-craddock_order-byNetwork_nRois-835.mat','idx')
         t = t(idx,:);      roiLabels = t.networkName; %reorder
@@ -40,10 +55,12 @@ switch descript_roisName
         roiLabels = t.networkName;
     end
 
-  %--------  
+  %========
   case 'OSL_noOverlap' %legacy set
-  %--------  
+  %========
+    %--------
     switch descript_roiOrder
+    %--------
       case 'originalOrder'
         [y,roiLabels] = reorderOSLROIs(y); %this wont work right now... need idx
     end
@@ -62,8 +79,9 @@ end
 %% store mean of all subjects in corrMat.delta, corrMat.theta etc
 for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
-  fileStr = sprintf('data/pp/sub-CC*/ROIs-%s/hilbertEnvCorr_band-%s_roiOrder-%s.mat',...
-    descript_roisName,bandName,descript_roiOrder);
+  fileStr = sprintf(...
+    'data/pp/sub-CC*/ROIs-%s/hilbertEnvCorr_band-%s_roiOrder-%s_doOrthog-%s.mat',...
+    descript_roisName,bandName,descript_roiOrder,num2str(doOrthog));
   dirContents = dir(fileStr);
   nSubs = length(dirContents);
   fprintf('%d subs found for query:\n%s\n',nSubs,fileStr)
@@ -83,7 +101,7 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   group_corrM = [];
   eval(sprintf('group_corrM = corrMat.%s;',bandName));
   
-  figure('Position',[10 10 1250 750]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
+  figure('Position',[0,0,1000,1000]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
   %manage labels
   switch descript_roiOrder
     case 'byNetwork'
@@ -100,7 +118,7 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
   title(sprintf('%s Envelope Correlation N=%d roiOrder %s',bandName,nSubs,descript_roiOrder));
   saveas(gcf,...
-    sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s',outDir,bandName,nSubs,descript_roiOrder),...
+    sprintf('%s/groupCorrMat_band-%s_N=%d_roiOrder-%s_doOrthog-%s',outDir,bandName,nSubs,descript_roiOrder,num2str(doOrthog)),...
     'jpeg');
   fprintf('Saved figure - %s\n',bandName);
   
@@ -113,7 +131,7 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
     
     group_corrM_dropNoNetwork = group_corrM(1:724,1:724);
     
-    figure('Position',[10 10 1250 750]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
+    figure('Position',[0,0,1000,1000]),imagesc(group_corrM_dropNoNetwork); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
     %manage labels
     switch descript_roiOrder
       case 'byNetwork'
@@ -137,5 +155,5 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
 end
 
-save(fullfile(outDir,sprintf('group_corrMat_roiOrder-%s.mat',descript_roiOrder)),'corrMat','CCIDList','age')
+save(fullfile(outDir,sprintf('group_corrMat_roiOrder-%s_doOrthog-%s.mat',descript_roiOrder,num2str(doOrthog))),'corrMat','CCIDList','age','roiLabels')
 close all
