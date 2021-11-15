@@ -61,8 +61,6 @@ end
 
 clear atlasInfo   %to avoid confusion with corrM.atlasInfo
 
-
-
 %% 003. Discard ROIs if poor coverage
 % taskDir = fullfile('003_discardROIs');
 % try
