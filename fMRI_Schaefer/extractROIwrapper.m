@@ -148,6 +148,8 @@ for s = 1:nSubs
     load(fN_rsfMRI_GLM)
     corrM.Bmat(:,:,i) = Bmat;
     corrM.Zmat(:,:,i) = Zmat;
+    corrM.pBmat(:,:,i) = pBmat; %partial correlation
+    corrM.pZmat(:,:,i) = pZmat; %partial correlation
     corrM.meanB(i) = mB;
     corrM.CCIDList{i} = CCID;
     
