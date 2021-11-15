@@ -1,5 +1,8 @@
-%% Plot key Schaefer atlas corrMats
+%% For key Schaefer atlas corrMats - 
+%% - Plot group corrMatrices
+%% - Calculate Laterality Index scores
 %%
+%% ------------------------------------------------------------------------
 %%
 %% fMRI: original vs. partial correlation
 %%
@@ -40,6 +43,10 @@ oN = sprintf('%s/corrM-fMRI_Measure-Betas_Atlas-%s_N-%d',outDir,atlasName,nSubs)
 %% doPlot
 %% ------------------------------------------------------------------------
 doPlot(tmpD,roiLabels,titleStr,oN)
+%% doLaterality
+%% ------------------------------------------------------------------------
+[lateralityScore.fMRI_score,idxROI] = ...
+  doLaterality(corrM.Bmat,corrM.atlasInfo.networkLabel_str);
 
 
 %% fMRI v2 - Partial Correlation
@@ -63,6 +70,14 @@ oN = sprintf('%s/corrM-fMRI_Measure-Betas_Atlas-%s_N-%d_withPartialCorrelation',
 %% doPlot
 %% ------------------------------------------------------------------------
 doPlot(tmpD,roiLabels,titleStr,oN)
+%% doLaterality
+%% ------------------------------------------------------------------------
+[lateralityScore.fMRI_partialCorrelation_score,idxROI] = ...
+  doLaterality(corrM.Bmat,corrM.atlasInfo.networkLabel_str);
+
+%% store some other stuff - fMRI
+lateralityScore.fMRI_CCIDList = corrM.CCIDList;
+lateralityScore.fMRI_idxROI = idxROI;
 
 %% MEG
 %% 1. with Orthog                       | (Original)
@@ -70,7 +85,7 @@ doPlot(tmpD,roiLabels,titleStr,oN)
 dirfN = fullfile(projectDir,...
   'MEG/data/group_corrMat/ROIs-Schaefer_100parcels_7networks_version-original');
 load(fullfile(dirfN,'group_corrMat_roiOrder-dropSchaefer_doOrthog-1.mat'),...
-  'corrMat','roiLabels'); 
+  'corrMat','roiLabels');
 %% normalise output
 %% ------------------------------------------------------------------------
 networkLabel_str = roiLabels; clear roiLabels
@@ -88,6 +103,10 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   %% doPlot
   %% ------------------------------------------------------------------------
   doPlot(tmpD,roiLabels,titleStr,oN)
+  %% doLaterality
+  %% ------------------------------------------------------------------------
+  %[tmpScore,tmpROI] = ...
+  %doLaterality();
 end
 
 %% MEG
