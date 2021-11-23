@@ -19,7 +19,7 @@
 clear; close all
 
 projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/';
-outDir = 'images/cc280'; mkdir(outDir)
+outDir = 'images_cc280'; mkdir(outDir)
 
 list_bandNames = {'delta','theta','alpha','beta','lGamma', ...
   'broadband'};
@@ -111,4 +111,177 @@ writetable(t,'lateralityTable_cc280.csv');
 
 return
 
-%% doHists.m for other bespoke plots
+%% doHists_cc280.m for other bespoke plots
+
+
+
+%% ========================================================================
+%% corrMat for cc700 + cc280
+%% ========================================================================
+projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/';
+%% fMRI 700
+%% ========================================================================
+descriptStr = '';
+dirfN = fullfile(projectDir,...
+  'fMRI_Schaefer/data/002_getRestingStateFC/schaefer');
+load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
+  'corrM');
+%% normalise output
+%% ------------------------------------------------------------------------
+%% data
+tmpD = corrM.Bmat;
+%drop non-association networks from data + roiLabel_strigns
+listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
+for i = 1:length(listNetworkStrToDrop)
+  idx = find(contains(corrM.atlasInfo.networkLabel_str,listNetworkStrToDrop{i}));
+  tmpD(idx,:,:) = [];   tmpD(:,idx,:) = [];
+  corrM.atlasInfo.networkLabel_str(idx) = [];
+end
+%% ROILabels
+[roiLabels] = makeROILabels(corrM.atlasInfo.networkLabel_str);
+cc700 = mean(tmpD,3);
+cc700( logical( eye( size(cc700) ) ) ) = nan; %diagonal
+
+%% fMRI 280
+%% ========================================================================
+descriptStr = '';
+dirfN = fullfile(projectDir,...
+  'fMRI_Schaefer_cc280/data/002_getRestingStateFC/schaefer');
+load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
+  'corrM');
+%% normalise output
+%% ------------------------------------------------------------------------
+%% data
+tmpD = corrM.Bmat;
+%drop non-association networks from data + roiLabel_strigns
+listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
+for i = 1:length(listNetworkStrToDrop)
+  idx = find(contains(corrM.atlasInfo.networkLabel_str,listNetworkStrToDrop{i}));
+  tmpD(idx,:,:) = [];   tmpD(:,idx,:) = [];
+  corrM.atlasInfo.networkLabel_str(idx) = [];
+end
+%% ROILabels
+[roiLabels] = makeROILabels(corrM.atlasInfo.networkLabel_str);
+cc280 = mean(tmpD,3);
+cc280( logical( eye( size(cc280) ) ) ) = nan; %diagonal
+
+%% axis Labels
+roiLabels2 = cell(1, length(roiLabels)); roiLabels2(:) = {''};
+[tmp,idx] = unique(roiLabels);
+for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end 
+halfOfLabels = roiLabels2(1:length(roiLabels2)/2);
+roiLabels2(length(roiLabels2)/2+1:end) = halfOfLabels;
+  
+
+figure('Position',[0,0,2000,2000])
+subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([0,1]);
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+title('CC700')
+subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([0,1])
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+title('CC280')
+
+sgtitle('fMRI BMatrix')
+oN = sprintf('%s/corrM-fMRI_Measure-Betas_cc700ANDcc280',outDir); %.jpg
+saveas(gcf,...
+  oN,'jpeg');
+   
+   
+ccDiff = cc700 - cc280
+figure('Position',[0,0,1000,1000])
+imagesc(ccDiff); colormap(hot); axis square; colorbar; %caxis([0,1]);
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+
+sgtitle('fMRI BMatrix CC700 CC280 Difference')
+oN = sprintf('%s/corrM-fMRI_Measure-Betas_Diff-cc700cc280',outDir); %.jpg
+saveas(gcf,...
+  oN,'jpeg');
+
+
+%% ========================================================================
+%% corrMat for cc700 + cc280 - Partial Correlation
+%% ========================================================================
+projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/';
+%% fMRI 700
+%% ========================================================================
+descriptStr = '';
+dirfN = fullfile(projectDir,...
+  'fMRI_Schaefer/data/002_getRestingStateFC/schaefer');
+load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
+  'corrM');
+%% normalise output
+%% ------------------------------------------------------------------------
+%% data
+tmpD = corrM.pBmat;
+%drop non-association networks from data + roiLabel_strigns
+listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
+for i = 1:length(listNetworkStrToDrop)
+  idx = find(contains(corrM.atlasInfo.networkLabel_str,listNetworkStrToDrop{i}));
+  tmpD(idx,:,:) = [];   tmpD(:,idx,:) = [];
+  corrM.atlasInfo.networkLabel_str(idx) = [];
+end
+%% ROILabels
+[roiLabels] = makeROILabels(corrM.atlasInfo.networkLabel_str);
+cc700 = mean(tmpD,3);
+cc700( logical( eye( size(cc700) ) ) ) = nan; %diagonal
+
+%% fMRI 280
+%% ========================================================================
+descriptStr = '';
+dirfN = fullfile(projectDir,...
+  'fMRI_Schaefer_cc280/data/002_getRestingStateFC/schaefer');
+load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
+  'corrM');
+%% normalise output
+%% ------------------------------------------------------------------------
+%% data
+tmpD = corrM.pBmat;
+%drop non-association networks from data + roiLabel_strigns
+listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
+for i = 1:length(listNetworkStrToDrop)
+  idx = find(contains(corrM.atlasInfo.networkLabel_str,listNetworkStrToDrop{i}));
+  tmpD(idx,:,:) = [];   tmpD(:,idx,:) = [];
+  corrM.atlasInfo.networkLabel_str(idx) = [];
+end
+%% ROILabels
+[roiLabels] = makeROILabels(corrM.atlasInfo.networkLabel_str);
+cc280 = mean(tmpD,3);
+cc280( logical( eye( size(cc280) ) ) ) = nan; %diagonal
+
+%% axis Labels
+roiLabels2 = cell(1, length(roiLabels)); roiLabels2(:) = {''};
+[tmp,idx] = unique(roiLabels);
+for r=1:length(tmp); roiLabels2{idx(r)}=tmp{r}; end 
+halfOfLabels = roiLabels2(1:length(roiLabels2)/2);
+roiLabels2(length(roiLabels2)/2+1:end) = halfOfLabels;
+  
+
+figure('Position',[0,0,2000,2000])
+subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([0,1]);
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+title('CC700')
+subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([0,1])
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+title('CC280')
+
+sgtitle('fMRI BMatrix partialCorr')
+oN = sprintf('%s/corrM-fMRI_Measure-Betas_cc700ANDcc280_partialCorr',outDir); %.jpg
+saveas(gcf,...
+  oN,'jpeg');
+   
+   
+ccDiff = cc700 - cc280
+figure('Position',[0,0,1000,1000])
+imagesc(ccDiff); colormap(hot); axis square; colorbar; %caxis([0,1]);
+yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
+xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
+
+sgtitle('fMRI BMatrix CC700 CC280 Difference partialCorr')
+oN = sprintf('%s/corrM-fMRI_Measure-Betas_Diff-cc700cc280_partialCorr',outDir); %.jpg
+saveas(gcf,...
+  oN,'jpeg');

@@ -110,6 +110,17 @@ sgtitle('MEG Laterality Score (Reduced)')
 saveas(gcf,fullfile('tmp',char(datetime('now'))),'jpeg');
 
 
+clear; close all
+mkdir tmp
+
+list_bandNames = {'delta','theta','alpha','beta','lGamma', ...
+  'broadband'};
+list_colourNames = {'black','blue','red','green','yellow',...
+  'white'};
+
+
+
+
 
 %% SyS
 %% ========================================================================
@@ -120,10 +131,9 @@ list_colourNames = {'black','blue','red','green','yellow',...
   'white'};
 
 %% fMRI (within-network normalisation) %from Chan et al. 
-%% v1 with outlier
 figure('Position',[0,0,1000,1000]);
-yLims = [0,700];
-xLims = [-65,4];
+yLims = [0,150];
+xLims = [-0.1,1.5];
 %fMRI
 t = readtable('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI_Schaefer/data/004_computeSyS/noPartial_schaefer_associationOnly/SySTable.csv');
 subplot(2,1,1); histogram(t.SyS...
@@ -137,22 +147,22 @@ subplot(2,1,2); histogram(t.SyS...
 title('SyS - fMRI (Partial Correlation)','Interpreter','none')
 ylim(yLims); xlim(xLims); box off; line([0,0],yLims,'color','black','LineStyle','--','LineWidth',1)
 
-sgtitle('fMRI SyS (Within-Network normalisation)')
+sgtitle('fMRI SyS')
 saveas(gcf,fullfile('tmp',char(datetime('now'))),'jpeg');
 
-%% fMRI (no normalisation)
+%% fMRI (no within-network normalisation)
 close all; figure('Position',[0,0,1000,1000]);
 yLims = [0,150];
 xLims = [-0.1,0.5];
 %fMRI
 t = readtable('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI_Schaefer/data/004_computeSyS/noPartial_schaefer_associationOnly/SySTable_noNormalisation.csv');
-subplot(1,2,1); histogram(t.SyS,'BinLimits',[-1,1]...
+subplot(2,1,1); histogram(t.SyS,'BinLimits',[-1,1]...
   ,'FaceColor','white','FaceAlpha',0.2,'EdgeColor','black','LineWidth',2)
 ylim(yLims); xlim(xLims); box off; line([0,0],yLims,'color','black','LineStyle','--','LineWidth',1)
 title('SyS - fMRI','Interpreter','none')
 %fMRI - PartialCorr
 t = readtable('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI_Schaefer/data/004_computeSyS/partialCorr_schaefer_associationOnly/SySTable_noNormalisation.csv');
-subplot(1,2,2); histogram(t.SyS,'BinLimits',[-1,1]...
+subplot(2,1,2); histogram(t.SyS,'BinLimits',[-1,1]...
   ,'FaceColor','white','FaceAlpha',0.2,'EdgeColor','black','LineWidth',2)
 ylim(yLims); xlim(xLims); box off; line([0,0],yLims,'color','black','LineStyle','--','LineWidth',1)
 title('SyS - fMRI (Partial Correlation)','Interpreter','none')
