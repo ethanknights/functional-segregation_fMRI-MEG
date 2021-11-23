@@ -27,8 +27,10 @@ age = age';
 listNetworkStrToDrop = {'Limbic','Vis','SomMot'};
 for n = 1:length(listNetworkStrToDrop)
     idx = contains(corrM.atlasInfo.networkLabel_str,listNetworkStrToDrop{n});
-    corrM.Bmat(:,idx,:) = []; corrM.Bmat(idx,:,:) = [];
-    corrM.Zmat(:,idx,:) = []; corrM.Zmat(idx,:,:) = [];
+    corrM.Bmat(:,idx,:) = [];  corrM.Bmat(idx,:,:) = [];
+    corrM.pBmat(:,idx,:) = []; corrM.pBmat(idx,:,:) = [];
+    corrM.Zmat(:,idx,:) = [];  corrM.Zmat(idx,:,:) = [];
+    corrM.pZmat(:,idx,:) = []; corrM.pZmat(idx,:,:) = [];
     corrM.atlasInfo.networkLabel_num(idx) = [];
     corrM.atlasInfo.networkLabel_str(idx) = [];
 %     corrM.atlasInfo.numVox(idx) = [];
@@ -47,7 +49,7 @@ end
 for s = 1:length(CCIDList)
   
   %Get main data (i.e. subs connectivity matrix & roi labels)
-  M = squeeze(corrM.Bmat(:,:,s));
+  M = squeeze(corrM.pBmat(:,:,s));
   Ci = corrM.atlasInfo.networkLabel_num;
   
   nCi = unique(Ci);
