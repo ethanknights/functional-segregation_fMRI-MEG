@@ -93,13 +93,13 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   
   % save(fullfile(outDir,['corrMat_',bandName,'.mat']),'corrM') %huge file if saving all subjects
   
-  eval(sprintf('corrMat.%s = nanmean(corrM,3)',bandName)); %mean corrMat
+  eval(sprintf('corrMat.%s = corrM',bandName)); %mean corrMat
   
   
   %% plot group corrMat
   %% ======================================================================
   group_corrM = [];
-  eval(sprintf('group_corrM = corrMat.%s;',bandName));
+  eval(sprintf('group_corrM = nanmean(corrMat.%s,3);',bandName));
   
   figure('Position',[0,0,1000,1000]),imagesc(group_corrM); colorbar; %axis square; ca = [min(cm(:)) max(cm(:))];
   %manage labels

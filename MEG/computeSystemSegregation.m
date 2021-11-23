@@ -121,6 +121,8 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
     W(s) = mean(Wv); % mean this system
     B(s) = mean(Bv); % mean diff system
     S(s) = (W(s)-B(s))/W(s); % system segregation
+    S2(s) = W(s) - B(s); % system segregation (without within-network normalisation)
+    
   end
   
   clear corrM %memory
@@ -158,6 +160,12 @@ for b=1:length(list_bandNames); bandName = list_bandNames{b};
   writetable(toWrite,fullfile(outDir,sprintf('SySTable_%s_doOrthog-%s.csv',...
     bandName,num2str(doOrthog))))
 
+  %without within-network normalisation
+  toWrite = table(CCIDList,S2',age);
+  toWrite.Properties.VariableNames = {'CCID','SyS','Age'};
+  writetable(toWrite,fullfile(outDir,sprintf('SySTable_noNormalisation_%s_doOrthog-%s.csv',...
+    bandName,num2str(doOrthog))))
+
 end
 
 close all
@@ -172,4 +180,17 @@ newTable = tmpT;
 newTable.SyS = [];
 [newTable] = appendToTable(tmpD,list_bandNames,newTable);
 writetable(newTable,fullfile(outDir,sprintf('SySTable_allBands_doOrthog-%s.csv',...
+  num2str(doOrthog))));
+
+
+%% gather all bands in 1 table (noNormalisation)
+for b=1:length(list_bandNames); bandName = list_bandNames{b};
+  tmpT = readtable(fullfile(outDir,sprintf('SySTable_noNormalisation_%s_doOrthog-%s.csv',...
+    bandName,num2str(doOrthog))));
+  tmpD(:,b) = table2array(tmpT(:,2));
+end
+newTable = tmpT;
+newTable.SyS = [];
+[newTable] = appendToTable(tmpD,list_bandNames,newTable);
+writetable(newTable,fullfile(outDir,sprintf('SySTable_noNormalisation_allBands_doOrthog-%s.csv',...
   num2str(doOrthog))));
