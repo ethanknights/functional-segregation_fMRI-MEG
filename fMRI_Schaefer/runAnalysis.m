@@ -75,9 +75,8 @@ clear atlasInfo   %to avoid confusion with corrM.atlasInfo
 
 %% 004. Compute system segregation (Chan et al. 2014)
 taskDir = fullfile(outDir,'004_computeSyS',atlasName);
-%[W,B,S] = computeSystemSegregation(taskDir,corrM);
-[W,B,S] = computeSystemSegregation2_associationOnly(taskDir,corrM);
-%% Nicer SyS plot in R/plot_sys.R
+[W,B,S] = computeSyS_associationOnly(taskDir,corrM);
+%% R/plot_sys.R
 
 
 
