@@ -1,0 +1,56 @@
+<aap>
+  <tasklist>
+    <initialisation>
+      <module><name>aamod_checkparameters</name></module> 
+      <module><name>aamod_evaluatesubjectnames</name></module>
+      <module><name>aamod_study_init</name></module>
+      <module><name>aamod_newsubj_init</name></module>
+    </initialisation>
+    <main>
+      <module><name>aamod_meeg_get_file</name></module>
+      <module>
+        
+        <branch>
+          <analysisid_suffix>_nomovecomp</analysisid_suffix>
+          <module><name>aamod_meg_maxfilt</name>
+            <extraparameters>
+              <aap><tasklist><currenttask><settings><sss>
+                      <mvcomp>off</mvcomp></sss>
+                      <transform></transform>
+              </settings></currenttask></tasklist></aap>
+            </extraparameters>
+          </module>
+          <module><name>aamod_meg_convert</name></module>
+        </branch>
+        
+        <branch>
+          <analysisid_suffix>_movecomp</analysisid_suffix>
+          <module><name>aamod_meg_maxfilt</name>
+            <extraparameters>
+              <aap><tasklist><currenttask><settings><sss>
+                      <mvcomp>on</mvcomp></sss>
+                      <transform></transform>
+              </settings></currenttask></tasklist></aap>
+            </extraparameters>
+          </module>
+          <module><name>aamod_meg_convert</name></module>
+        </branch>
+        
+        <branch>
+          <analysisid_suffix>_movecomp_transdef</analysisid_suffix>
+          <module><name>aamod_meg_maxfilt</name>
+            <extraparameters>
+              <aap><tasklist><currenttask><settings><sss>
+                      <mvcomp>on</mvcomp></sss>
+                      <transform>0</transform>
+              </settings></currenttask></tasklist></aap>
+            </extraparameters>
+          </module>
+          <module><name>aamod_meg_convert</name></module>
+        </branch>
+
+      
+      </module>   
+    </main>
+  </tasklist>
+</aap>
