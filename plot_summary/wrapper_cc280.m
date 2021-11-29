@@ -34,6 +34,7 @@ t = table(d.CCID); t.Properties.VariableNames{1} = 'CCID_fMRI'; clear d
 % end
 t.Properties.VariableNames{1} = 'CCID';
 
+
 %% fMRI
 %% ========================================================================
 descriptStr = '';
@@ -104,6 +105,34 @@ doPlot(nanmean(tmpD,3),roiLabels,titleStr,oN);
 t.fMRI_partialCorr_lS = lS;
 t.fMRI_partialCorr_lSReduced = lSReduced;
 
+%% MEG
+%% A. no orthog, despike envelope (i.e. despike after downsampling), no partial correlation
+%% ========================================================================
+%% normalise output
+%% ------------------------------------------------------------------------
+descriptStr = 'noOrthog';
+tmp = load(fullfile(projectDir,'MEG_cc280/data/group_corrMat/ROIs-Schaefer_100parcels_7networks_version-noOrthogDespikeEnvel/group_corrMat_roiOrder-dropSchaefer_doOrthog-0.mat'));
+doMEG
+
+
+%% MEG
+%% B. with orthog, despike envelope (i.e. despike after downsampling), no partial correlation
+%% ========================================================================
+%% normalise output
+%% ------------------------------------------------------------------------
+descriptStr = 'orthog';
+tmp = load(fullfile(projectDir,'MEG_cc280/data/group_corrMat/ROIs-Schaefer_100parcels_7networks_version-orthogDespikeEnvel/group_corrMat_roiOrder-dropSchaefer_doOrthog-1.mat'));
+doMEG
+
+
+%% MEG
+%% C. with orthog, despike envelope (i.e. despike after downsampling), with partial correlation
+%% ========================================================================
+%% normalise output
+%% ------------------------------------------------------------------------
+descriptStr = 'orthog_partialCorr';
+tmp = load(fullfile(projectDir,'MEG_cc280/data/group_corrMat/ROIs-Schaefer_100parcels_7networks_version-orthogDespikeEnvelPartialCorr/group_corrMat_roiOrder-dropSchaefer_doOrthog-1.mat'));
+doMEG
 
 
 %% Write table
@@ -113,10 +142,8 @@ return
 
 %% doHists_cc280.m for other bespoke plots
 
-
-
 %% ========================================================================
-%% corrMat for cc700 + cc280
+%% fMRI corrMat for cc700 + cc280
 %% ========================================================================
 projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/';
 %% fMRI 700
@@ -202,7 +229,7 @@ saveas(gcf,...
 
 
 %% ========================================================================
-%% corrMat for cc700 + cc280 - Partial Correlation
+%% fMRI corrMat for cc700 + cc280 - Partial Correlation
 %% ========================================================================
 projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/';
 %% fMRI 700
