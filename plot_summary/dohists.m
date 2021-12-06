@@ -13,8 +13,8 @@ list_colourNames = {'black','blue','red','green','yellow',...
 %% Laterality Scores
 %% ========================================================================
 t = readtable('lateralityTable.csv');
-yLims = [0,125];
-xLims = [-0.1,0.75];
+yLims = [0,150];
+xLims = [-1,10];
 
 %% fMRI - lS
 figure('Position',[0,0,1000,1000]);
@@ -153,7 +153,7 @@ saveas(gcf,fullfile('tmp',char(datetime('now'))),'jpeg');
 %% fMRI (no within-network normalisation)
 close all; figure('Position',[0,0,1000,1000]);
 yLims = [0,150];
-xLims = [-0.1,0.5];
+xLims = [-1.5,1.5];
 %fMRI
 t = readtable('/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/fMRI_Schaefer/data/004_computeSyS/noPartial_schaefer_associationOnly/SySTable_noNormalisation.csv');
 subplot(2,1,1); histogram(t.SyS,'BinLimits',[-1,1]...

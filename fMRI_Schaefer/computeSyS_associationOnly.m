@@ -49,7 +49,10 @@ end
 for s = 1:length(CCIDList)
   
   %Get main data (i.e. subs connectivity matrix & roi labels)
-  M = squeeze(corrM.pBmat(:,:,s));
+  M = squeeze(corrM.Zmat(:,:,s));   %corr
+  %M = squeeze(corrM.pZmat(:,:,s)); %partial corr
+  [M] = fixInf_Zmat(M);
+  
   Ci = corrM.atlasInfo.networkLabel_num;
   
   nCi = unique(Ci);
@@ -108,72 +111,5 @@ toWrite.Properties.VariableNames = {'CCID','SyS','Age'};
 writetable(toWrite,fullfile(outDir,'SySTable_noNormalisation.csv'))
 %% check = readtable(fullfile(outDir,'SySTable_noNormalisation.csv'))
 
-return 
-
-%% Repeat with ZMatrix - this doesnt work: inf values
-%% ========================================================================
-
-%% WIGG'S VERSION: calculate system segregation
-for s = 1:length(CCIDList)
-  
-  %Get main data (i.e. subs connectivity matrix & roi labels)
-  M = squeeze(corrM.Zmat(:,:,s));
-  Ci = corrM.atlasInfo.networkLabel_num;
-  
-  nCi = unique(Ci);
-  
-  Wv = [];
-  Bv = [];
-  
-  for i = 1:length(nCi) % loop through communities
-    Wi = Ci == nCi(i); % find index for this system (i.e. within  communitiy)
-    Bi = Ci ~= nCi(i); % find index for diff system (i.e. between communitiy)
-    
-    Wv_temp = M(Wi,Wi); % extract this system
-    Bv_temp = M(Wi,Bi); % extract diff system
-    
-    Wv = [Wv, Wv_temp(logical(triu(ones(sum(Wi)),1)))'];
-    Bv = [Bv, Bv_temp(:)'];
-  end
-  
-  W(s) = mean(Wv); % mean this system
-  B(s) = mean(Bv); % mean diff system
-  S(s) = (W(s)-B(s))/W(s); % system segregation
-  S2(s) = W(s) - B(s); % system segregation (without within-network normalisation)
-  
-end
-%% plots
-plotRegression(S',age)
-title('System segregation - rest FC'); 
-xlabel('age'); ylabel('mean within - between system')
-outName = fullfile(outDir,'SystemSegregation_ZMat');
-cmdStr = sprintf('export_fig %s.png',outName)
-eval(cmdStr);
-
-plotRegression(B',age)
-title('Between System mean - rest FC');
-xlabel('age'); ylabel('mean between system')
-outName = fullfile(outDir,'BetweenSystemMean_ZMat');
-cmdStr = sprintf('export_fig %s.png',outName)
-eval(cmdStr);
-
-plotRegression(W',age)
-title('Within System mean - rest FC');
-xlabel('age'); ylabel('mean within system')
-outName = fullfile(outDir,'WithinSystemMean_ZMat');
-cmdStr = sprintf('export_fig %s.png',outName)
-eval(cmdStr);
-
-%% write SyS table
-toWrite = table(CCIDList,S',age);
-toWrite.Properties.VariableNames = {'CCID','SyS','Age'};
-writetable(toWrite,fullfile(outDir,'SySTable_ZMat.csv'))
-%% check = readtable(fullfile(outDir,'SySTable.csv'))
-
-%% write SyS table without within-network normalisation
-toWrite = table(CCIDList,S2',age);
-toWrite.Properties.VariableNames = {'CCID','SyS','Age'};
-writetable(toWrite,fullfile(outDir,'SySTable_noNormalisation_ZMat.csv'))
-%% check = readtable(fullfile(outDir,'SySTable_noNormalisation.csv'))
 
 end

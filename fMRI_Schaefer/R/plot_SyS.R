@@ -14,11 +14,14 @@ graphics.off() #clear plots
 wd = dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(wd)
 
-rawDir = '../data/004_computeSyS/schaefer_associationOnly'
+rawDir = '../data/004_computeSyS/noPartial_schaefer_associationOnly'
+#rawDir = '../data/004_computeSyS/partialCorr_schaefer_associationOnly'
 outImageDir = 'images'; dir.create(outImageDir)
 
 #---- Load Data ----#
 rawD <- read.csv(file.path(rawDir,'SySTable.csv'), header=TRUE,sep=",")
+#rawD <- read.csv(file.path(rawDir,'SySTable_noNormalisation.csv'), header=TRUE,sep=",")
+
 df = rawD
 
 # Setup Age

@@ -46,7 +46,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.Bmat;
+tmpD = corrM.Zmat; %or Bmat
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -59,9 +61,9 @@ end
 %% titleStr
 atlasName = 'Schaefer';
 nSubs = size(tmpD,3);
-titleStr = sprintf('Correlation Matrix-fMRI Measure-Betas Atlas-%s N-%d',atlasName,nSubs);
+titleStr = sprintf('Correlation Matrix-fMRI Measure-ZStatistic Atlas-%s N-%d',atlasName,nSubs);
 %% outName
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_Atlas-%s_N-%d',outDir,atlasName,nSubs); %.jpg
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_Atlas-%s_N-%d',outDir,atlasName,nSubs); %.jpg
 %% doPlot
 %% ------------------------------------------------------------------------
 doPlot(nanmean(tmpD,3),roiLabels,titleStr,oN);
@@ -81,7 +83,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.pBmat; %pBmat!
+tmpD = corrM.pZmat; %pBmat / pZmat!
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -94,9 +98,9 @@ end
 %% titleStr
 atlasName = 'Schaefer';
 nSubs = size(tmpD,3);
-titleStr = sprintf('Correlation Matrix-fMRI Measure-Betas Atlas-%s N-%d (Partial Correlation)',atlasName,nSubs);
+titleStr = sprintf('Correlation Matrix-fMRI Measure-ZStatistic Atlas-%s N-%d (Partial Correlation)',atlasName,nSubs);
 %% outName
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_Atlas-%s_N-%d_PartialCorr',outDir,atlasName,nSubs); %.jpg
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_Atlas-%s_N-%d_PartialCorr',outDir,atlasName,nSubs); %.jpg
 %% doPlot
 %% ------------------------------------------------------------------------
 doPlot(nanmean(tmpD,3),roiLabels,titleStr,oN);

@@ -15,7 +15,7 @@ list_colourNames = {'black','blue','red','green','yellow',...
 %% ========================================================================
 t = readtable('lateralityTable_cc280.csv');
 yLims = [0,100];
-xLims = [-0.1,0.75];
+xLims = [-2,6];
 
 %% fMRI - lS
 figure('Position',[0,0,1000,1000]);
