@@ -160,7 +160,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.Bmat;
+tmpD = corrM.Zmat;
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -183,7 +185,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.Bmat;
+tmpD = corrM.Zmat;
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -205,17 +209,17 @@ roiLabels2(length(roiLabels2)/2+1:end) = halfOfLabels;
   
 
 figure('Position',[0,0,2000,2000])
-subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([0,1]);
+subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([-3,5]);
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 title('CC700')
-subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([0,1])
+subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([-3,5])
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 title('CC280')
 
 sgtitle('fMRI BMatrix')
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_cc700ANDcc280',outDir); %.jpg
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_cc700ANDcc280',outDir); %.jpg
 saveas(gcf,...
   oN,'jpeg');
    
@@ -227,7 +231,7 @@ yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 
 sgtitle('fMRI BMatrix CC700 CC280 Difference')
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_Diff-cc700cc280',outDir); %.jpg
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_Diff-cc700cc280',outDir); %.jpg
 saveas(gcf,...
   oN,'jpeg');
 
@@ -246,7 +250,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.pBmat;
+tmpD = corrM.pZmat;
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -269,7 +275,9 @@ load(fullfile(dirfN,'connectivity-betaMatrix.mat'),...
 %% normalise output
 %% ------------------------------------------------------------------------
 %% data
-tmpD = corrM.pBmat;
+tmpD = corrM.pZmat;
+%replace inf vals with min/max
+for s = 1:length(tmpD); tmpD(:,:,s) = fixInf_Zmat(tmpD(:,:,s)); end
 %drop non-association networks from data + roiLabel_strigns
 listNetworkStrToDrop = {'_Limbic_','_Vis_','_SomMot_'};
 for i = 1:length(listNetworkStrToDrop)
@@ -291,17 +299,17 @@ roiLabels2(length(roiLabels2)/2+1:end) = halfOfLabels;
   
 
 figure('Position',[0,0,2000,2000])
-subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([0,1]);
+subplot(1,2,1), imagesc(cc700); colormap(hot); axis square; colorbar; caxis([-3,5]);
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 title('CC700')
-subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([0,1])
+subplot(1,2,2), imagesc(cc280); colormap(hot); axis square; colorbar; caxis([-3,5])
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 title('CC280')
 
-sgtitle('fMRI BMatrix partialCorr')
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_cc700ANDcc280_partialCorr',outDir); %.jpg
+sgtitle('fMRI ZStatistic partialCorr')
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_cc700ANDcc280_partialCorr',outDir); %.jpg
 saveas(gcf,...
   oN,'jpeg');
    
@@ -312,7 +320,7 @@ imagesc(ccDiff); colormap(hot); axis square; colorbar; %caxis([0,1]);
 yticks(1:length(roiLabels2)); set(gca, 'YTicklabel',roiLabels2);
 xticks(1:length(roiLabels2)); set(gca, 'xTicklabel',roiLabels2); xtickangle(90);
 
-sgtitle('fMRI BMatrix CC700 CC280 Difference partialCorr')
-oN = sprintf('%s/corrM-fMRI_Measure-Betas_Diff-cc700cc280_partialCorr',outDir); %.jpg
+sgtitle('fMRI ZStatistic CC700 CC280 Difference partialCorr')
+oN = sprintf('%s/corrM-fMRI_Measure-ZStatistic_Diff-cc700cc280_partialCorr',outDir); %.jpg
 saveas(gcf,...
   oN,'jpeg');
