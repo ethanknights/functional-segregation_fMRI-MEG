@@ -16,7 +16,7 @@ nSubs = length(CCIDList);
 %% grab subjects ages (as might have dropped some so d.age useless)
 I = LoadSubIDs;
 for s = 1:nSubs
-  idx = contain(CCIDList{s},I.SubCCIDc);
+  idx = contain(CCIDList{s},I.cc280.SubCCIDc);
   age(s) = I.Age(idx);
 end
 age = age';
