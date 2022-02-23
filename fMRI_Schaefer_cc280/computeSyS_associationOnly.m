@@ -17,7 +17,7 @@ nSubs = length(CCIDList);
 I = LoadSubIDs;
 for s = 1:nSubs
   idx = contain(CCIDList{s},I.cc280.SubCCIDc);
-  age(s) = I.Age(idx);
+  age(s) = I.cc280.Age(idx);
 end
 age = age';
 
