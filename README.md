@@ -79,3 +79,10 @@ runAnalysis_Atlas-Schaefer.Rmd
 
 Refer to ```R/README.md```for the order in which these files were designed to be ran.
 
+
+# (4). Next Steps
+Normalise age effects with mean of timeseries.
+<br>
+Multivariate distance correlation.
+<br>
+Calculcate SyS with movie data (rather than SMT task)
