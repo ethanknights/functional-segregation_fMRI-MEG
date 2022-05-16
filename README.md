@@ -67,7 +67,7 @@ A list of the variations of these pipeline are below:
         - Different normalisation formulae including from Chan et al. (2014) [ChanNorm], an orthogonal Within + Between value [just called SyS] and no normalisation [noNorm].
 
 
-# 3. Regression modelling in R
+# 4. Regression modelling in R
 Finally, use .Rmd files wite .html files that report the results from multiple regression modelling (e.g. to test if age predicts SyS, or if SyS predicts cogntiive performance independet of age).
  
 
@@ -80,7 +80,7 @@ runAnalysis_Atlas-Schaefer.Rmd
 Refer to ```R/README.md```for the order in which these files were designed to be ran.
 
 
-# (4). Next Steps
+# Next Steps
 Normalise age effects with mean of timeseries.
 <br>
 Multivariate distance correlation.
