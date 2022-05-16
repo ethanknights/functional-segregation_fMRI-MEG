@@ -4,7 +4,7 @@ list_bandNames = {'delta','theta','alpha','beta','lGamma', ...
   'broadband'};
 
 
-projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG';
+projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_SMT/rest_pipeline/';
 rawDir = 'MEG/data/pp/';
 dwDir = fullfile(projectDir,rawDir);
 
@@ -24,7 +24,7 @@ expected_nROIs = 64;
 list_method_corr = {'corr','ridgep'};
 
 %% DescriptName (prefix for SyS column names)
-modality = 'MEG';
+modality = 'MEG_SMT';
 atlasName = 'schaefer';
 
 for meth = 1:length(list_method_corr); method_corr = list_method_corr{meth};

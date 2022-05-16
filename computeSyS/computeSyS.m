@@ -11,7 +11,7 @@
 %% SyS_noNorm = Segregation. No normalisation
 
 
-function [W,B,SyS,SyS_noNorm] = computeSyS(corrM,roi_networkIdx)
+function [W,B,SyS,SyS_chanNorm,SyS_noNorm] = computeSyS(corrM,roi_networkIdx)
 
   M = corrM;
   Ci = roi_networkIdx;
@@ -32,9 +32,10 @@ function [W,B,SyS,SyS_noNorm] = computeSyS(corrM,roi_networkIdx)
     Bv = [Bv, Bv_temp(:)'];
   end
   
-  W = mean(Wv);                 % mean this system
-  B = mean(Bv);                 % mean diff system
-  SyS = ( W - B ) / ( W + B );  % SyS
-  SyS_noNorm = W - B;           % SyS (without within-network normalisation)
+  W = mean(Wv);                   % mean this system
+  B = mean(Bv);                   % mean diff system
+  SyS = ( W - B ) / ( W + B );    % SyS
+  SyS_chanNorm = ( W - B ) / W;   % SyS (with Chan et al. 2014 normalisation)
+  SyS_noNorm = W - B;             % SyS (without within-network normalisation)
   
 end

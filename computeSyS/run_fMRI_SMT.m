@@ -1,8 +1,9 @@
 clear; mkdir csv
 
 
-projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG';
-rawDir = 'fMRI_Schaefer/data/002_getRestingStateFC/schaefer';
+
+projectDir = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_SMT/rest_pipeline/';
+rawDir = 'fMRI/data/002_getRestingStateFC/schaefer';
 dwDir = fullfile(projectDir,rawDir);
 
 %% ROI Info that corresponds to the [ROI x tS] matrix
@@ -22,7 +23,7 @@ expected_nROIs = 64;
 list_method_corr = {'corr','ridgep'};
 
 %% DescriptName (prefix for SyS column names)
-modality = 'fMRI';
+modality = 'fMRI_SMT';
 atlasName = 'schaefer';
 
 for meth = 1:length(list_method_corr); method_corr = list_method_corr{meth};
