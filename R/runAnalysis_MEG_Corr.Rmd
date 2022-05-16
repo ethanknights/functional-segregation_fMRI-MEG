@@ -1,0 +1,207 @@
+---
+title: "Assessing the Robustness of Neural System Segregation across Modality, Task & Time"
+author: Ethan Knights & Rik Henson
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Notebook: MEG (Frequency Band - Full Correlation)
+**Test for effects (Age/Cognition) on MEG SyS across frequency bands.
+<br> 
+Full correlation and classic normalisation.**
+
+## Setup
+```{r}
+wd = '/imaging/camcan/sandbox/ek03/projects/functional-segregation_fMRI-MEG/R'; setwd(wd)
+library(tidyr)
+library(knitr)
+library(broom)
+library(ggplot2)
+```
+
+Ensure SyS data (.csv) are in the raw directory specified below.<br>
+  Output images will be stored in the output directory specified below. <br>
+```{r}
+rawDir = 'csv'
+outImageDir = 'images'; dir.create(outImageDir,showWarnings = FALSE)
+```
+Read dataset.
+```{r}
+df = read.csv(file.path(rawDir,'SyS-Schaefer.csv')); #head(df)
+```
+Add Age quadratic term.
+```{r}
+df$ageQuad <- poly(df$age,2) #1st linear, 2nd quad
+```
+Remove subjects with any missing measure (SyS + Cognition) to simplify age-residualisation later.
+```{r}
+df = df[complete.cases(df$Cattell_700), ]
+df = df[complete.cases(df$Memory_700), ]
+df = df[complete.cases(df$fMRI_schaefer_corr_metric_SyS_chanNorm), ] #still drop fMRI to make ICC simple later
+df = df[complete.cases(df$MEG_delta_schaefer_corr_metric_SyS_chanNorm), ]
+df = df[complete.cases(df$MEG_theta_schaefer_corr_metric_SyS_chanNorm), ]
+df = df[complete.cases(df$MEG_alpha_schaefer_corr_metric_SyS_chanNorm), ]
+df = df[complete.cases(df$MEG_beta_schaefer_corr_metric_SyS_chanNorm), ]
+df = df[complete.cases(df$MEG_lGamma_schaefer_corr_metric_SyS_chanNorm), ]
+df = df[complete.cases(df$MEG_broadband_schaefer_corr_metric_SyS_chanNorm), ]
+sprintf('Remaining Subjects = %1.0f',nrow(df))
+```
+Create age-residualised SyS + Cognition variables for better plotting.
+```{r}
+lm_model <- lm(Cattell_700 ~ age, data = df)
+df$Cattell_700_ageResid = residuals(lm_model)
+
+lm_model <- lm(Memory_700 ~ age, data = df)
+df$Memory_700_ageResid = residuals(lm_model)
+
+#700
+lm_model <- lm(fMRI_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$fMRI_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#delta
+lm_model <- lm(MEG_delta_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_delta_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#theta
+lm_model <- lm(MEG_theta_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_theta_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#alpha
+lm_model <- lm(MEG_alpha_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_alpha_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#beta
+lm_model <- lm(MEG_beta_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_beta_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#lGamma
+lm_model <- lm(MEG_lGamma_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_lGamma_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+#broadband
+lm_model <- lm(MEG_broadband_schaefer_corr_metric_SyS_chanNorm ~ age, data = df)
+df$MEG_broadband_schaefer_corr_metric_SyS_chanNorm_ageResid = residuals(lm_model)
+
+```
+<br>
+
+## 1) Effect of Age (Each band)
+```{r}
+lm_model <- lm(scale(MEG_delta_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (Delta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(scale(MEG_theta_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (Theta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(scale(MEG_alpha_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (Alpha).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(scale(MEG_beta_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (Beta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(scale(MEG_lGamma_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (lGamma).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(scale(MEG_broadband_schaefer_corr_metric_SyS_chanNorm) ~ scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (Broadband).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+```
+<br>
+
+#pivot_longer or melt here to plot all at once as pretty long otherwise!
+# ```{r}
+
+
+tmpDF <- as.data.frame(cbind(df$age,
+df$MEG_delta_schaefer_ridgep_metric_SyS_chanNorm,
+df$MEG_theta_schaefer_ridgep_metric_SyS_chanNorm))
+colnames(tmpDF) = c('age','delta','theta')
+
+tmpDF %>% pivot_longer(agedelta,theta)
+
+
+
+# p <- ggplot(df, aes(x = age, y = MEG_delta_schaefer_corr_metric_SyS_chanNorm))
+# p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
+# p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
+# #p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ poly(x,2, raw = TRUE), colour = "springgreen3", size = 3)
+# #formatting
+# p <- p + scale_x_continuous(breaks = round(seq(20, max(80), by = 20),1),limits = c(15,90)) + #ylim(0,400) +
+#   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
+#                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
+# ggsave(file.path(outImageDir,'Age_MEG-delta_partial.png'), width = 25, height = 25, units = 'cm', dpi = 300); p
+# ```
+<br>
+
+
+  
+## 2A) Effect on Cognition: Cattell
+  
+```{r}
+lm_model <- lm(Cattell_700 ~ scale(MEG_delta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - Delta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Cattell_700 ~ scale(MEG_theta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - Theta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Cattell_700 ~ scale(MEG_alpha_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - Alpha).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Cattell_700 ~ scale(MEG_beta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - Beta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Cattell_700 ~ scale(MEG_lGamma_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - lGamma).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Cattell_700 ~ scale(MEG_broadband_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (MEG - Broadband).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+```
+
+# ```{r}
+# p <- ggplot(df, aes(y = scale(Cattell_700_ageResid), x = fMRI_schaefer_corr_metric_SyS_chanNorm_ageResid))
+# p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
+# p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
+# #formatting
+# p <- p + #xlim() + #ylim(0,400) +
+#   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
+#                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
+# ggsave(file.path(outImageDir,"Cog-Cattell_fMRI_schaefer.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
+# ```
+<br>
+
+## 2B) Effect on Cognition: Memory
+  
+```{r}
+lm_model <- lm(Memory_700 ~ scale(MEG_delta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - Delta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Memory_700 ~ scale(MEG_theta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - Theta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Memory_700 ~ scale(MEG_alpha_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - Alpha).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Memory_700 ~ scale(MEG_beta_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - Beta).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Memory_700 ~ scale(MEG_lGamma_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - lGamma).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+lm_model <- lm(Memory_700 ~ scale(MEG_broadband_schaefer_corr_metric_SyS_chanNorm) * scale(ageQuad),
+               data = df); summary(lm_model) %>% 
+  tidy() %>%  kable(caption = "Table 2. Effect on Memory (MEG - Broadband).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+```
+
+<br>
+# ```{r}
+# p <- ggplot(df, aes(y = scale(Memory_700_ageResid), x = fMRI_schaefer_corr_metric_SyS_chanNorm))
+# p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
+# p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
+# #formatting
+# p <- p + #xlim() + #ylim(0,400) +
+#   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
+#                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
+# ggsave(file.path(outImageDir,"Cog-Memory_fMRI_schaefer.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
+# ```
+<br>

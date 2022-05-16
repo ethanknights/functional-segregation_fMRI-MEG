@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-# Notebook: Orthogonal Normalisation
+# Notebook: Omit Normalisation
 **Test for effects (Age/Cognition) on SyS that is calculated using 3 different normalisation approaches. **
 
 $$ Classic Normalisation = [W - B / W] $$
@@ -17,7 +17,7 @@ See the following respective reports:<br>
 + runAnalysis_Normalisation-OrthongalNorm.Rmd
 + runAnalysis_Normalisation-NoNorm.Rmd
 
-This report uses SyS column with an empty norm SyS prefix (representing orthogonal normalisation) i.e., rather than 'chanNorm' or 'noNorm'
+This report uses SyS column with the 'noNorm' SyS prefix (representing Omit Normalisation).
 
 ## Setup
 ```{r}
@@ -58,8 +58,8 @@ lm_model <- lm(Memory_700 ~ age, data = df)
 df$Memory_700_ageResid = residuals(lm_model)
 
 #700
-lm_model <- lm(fMRI_craddock_corr_metric_SyS ~ age, data = df)
-df$fMRI_craddock_corr_metric_SyS_ageResid = residuals(lm_model)
+lm_model <- lm(fMRI_craddock_corr_metric_SyS_noNorm ~ age, data = df)
+df$fMRI_craddock_corr_metric_SyS_noNorm_ageResid = residuals(lm_model)
 ```
 <br>
 
@@ -67,12 +67,12 @@ df$fMRI_craddock_corr_metric_SyS_ageResid = residuals(lm_model)
 ```{r}
 lm_model <- lm(scale(fMRI_craddock_corr_metric_SyS) ~ scale(ageQuad),
                data = df); summary(lm_model) %>% 
-  tidy() %>%  kable(caption = "Table 1. Effect of Age (OrthogonalNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+  tidy() %>%  kable(caption = "Table 1. Effect of Age (NoNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
 ```
 <br>
 
 ```{r}
-p <- ggplot(df, aes(x = age, y = fMRI_craddock_corr_metric_SyS))
+p <- ggplot(df, aes(x = age, y = fMRI_craddock_corr_metric_SyS_noNorm))
 p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
 #p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
 p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ poly(x,2, raw = TRUE), colour = "springgreen3", size = 3)
@@ -80,7 +80,7 @@ p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ po
 p <- p + scale_x_continuous(breaks = round(seq(20, max(80), by = 20),1),limits = c(15,90)) + #ylim(0,400) +
   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
-ggsave(file.path(outImageDir,'Age_fMRI_orthogonalNorm.png'), width = 25, height = 25, units = 'cm', dpi = 300); p
+ggsave(file.path(outImageDir,'Age_fMRI_NoNorm.png'), width = 25, height = 25, units = 'cm', dpi = 300); p
 ```
 <br>
 
@@ -89,20 +89,20 @@ ggsave(file.path(outImageDir,'Age_fMRI_orthogonalNorm.png'), width = 25, height 
 ## 2A) Effect on Cognition: Cattell
   
 ```{r}
-lm_model <- lm(Cattell_700 ~scale(fMRI_craddock_corr_metric_SyS) * scale(ageQuad),
+lm_model <- lm(Cattell_700 ~ scale(fMRI_craddock_corr_metric_SyS_noNorm) * scale(ageQuad),
                data = df); summary(lm_model) %>% 
-  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (OrthogonalNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+  tidy() %>%  kable(caption = "Table 2. Effect on Cattell (NoNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
 ```
 
 ```{r}
-p <- ggplot(df, aes(y = scale(Cattell_700_ageResid), x = fMRI_craddock_corr_metric_SyS_ageResid))
+p <- ggplot(df, aes(y = scale(Cattell_700_ageResid), x = fMRI_craddock_corr_metric_SyS_noNorm_ageResid))
 p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
 p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
 #formatting
 p <- p + #xlim() + #ylim(0,400) +
   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
-ggsave(file.path(outImageDir,"Cog-Cattell_fMRI_OrthogonalNorm.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
+ggsave(file.path(outImageDir,"Cog-Cattell_fMRI_NoNorm.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
 ```
 <br>
 
@@ -111,19 +111,19 @@ ggsave(file.path(outImageDir,"Cog-Cattell_fMRI_OrthogonalNorm.png"), width = 25,
 ```{r}
 lm_model <- lm(Memory_700 ~scale(fMRI_craddock_corr_metric_SyS) * scale(ageQuad),
                data = df); summary(lm_model) %>% 
-  tidy() %>%  kable(caption = "Table 3. Effect on Memory (OrthogonalNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
+  tidy() %>%  kable(caption = "Table 3. Effect on Memory (NoNorm).",col.names = c("Predictor", "B", "SE", "t", "p"),  digits = c(0, 2, 3, 2, 3))
 ```
 
 <br>
 ```{r}
-p <- ggplot(df, aes(y = scale(Memory_700_ageResid), x = fMRI_craddock_corr_metric_SyS_ageResid))
+p <- ggplot(df, aes(y = scale(Memory_700_ageResid), x = fMRI_craddock_corr_metric_SyS_noNorm_ageResid))
 p <- p + geom_point(shape = 21, size = 3, colour = "black", fill = "white", stroke = 2)
 p <- p + stat_smooth(method = "lm", se = TRUE, fill = "grey60", formula = y ~ x, colour = "springgreen3", size = 3)
 #formatting
 p <- p + #xlim() + #ylim(0,400) +
   theme_bw() + theme(panel.border = element_blank(), legend.position = "none",text = element_text(size=14),
                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
-ggsave(file.path(outImageDir,"Cog-Memory_fMRI_OrthogonalNorm.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
+ggsave(file.path(outImageDir,"Cog-Memory_fMRI_NoNorm.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
 ```
 <br>
 
@@ -131,21 +131,21 @@ ggsave(file.path(outImageDir,"Cog-Memory_fMRI_OrthogonalNorm.png"), width = 25, 
 
 ```{r} 
 library(irr)
-tmpDF = cbind(df$fMRI_craddock_corr_metric_SyS_chanNorm,df$fMRI_craddock_corr_metric_SyS)
+tmpDF = cbind(df$fMRI_craddock_corr_metric_SyS_chanNorm,df$fMRI_craddock_corr_metric_SyS_noNorm)
 icc(tmpDF)
 ```
 
 ```{r}
-p <- ggplot(df, aes(x = scale(fMRI_craddock_corr_metric_SyS_chanNorm), y = scale(fMRI_craddock_corr_metric_SyS), colour = age))
+p <- ggplot(df, aes(x = scale(fMRI_craddock_corr_metric_SyS_chanNorm), y = scale(fMRI_craddock_corr_metric_SyS_noNorm), colour = age))
 p <- p + geom_point(shape = 21, size = 3, stroke = 2, alpha = 0.4) + 
   geom_abline(intercept = 0, slope = 1, linetype = 'dashed')
 #formatting
-p <- p + xlim(-4.5,3) + ylim(-4.5,3) + #Scaled
-#p <- p + xlim(0.3,1.25) + ylim(0.3,1.25) + #Non-scaled
+p <- p + xlim(-4.8,4) + ylim(-4.8,4) + #Scaled
+#p <- p + xlim(0.5,5) + ylim(0.5,5) + #Non-scaled
   scale_color_gradient(low="green", high="red") +
   theme_bw() + theme(panel.border = element_blank(), legend.position = "right",text = element_text(size=14),
                      panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black",size = 1.5),axis.ticks = element_line(colour = "black", size = 1.5))
-ggsave(file.path(outImageDir,"ICC_Norm-ClassicVSOrthog.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
+ggsave(file.path(outImageDir,"ICC_Norm-ClassicVSNoNorm.png"), width = 25, height = 25, units = 'cm', dpi = 300); p
 ```
 <br>
 
